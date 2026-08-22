@@ -1,2 +1,2 @@
-Designed for Sukuna Secondary School!<br>
+!<br>
 Do not clone this repo! It is incomplete 
