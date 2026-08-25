@@ -93,6 +93,21 @@ export async function createAdmin(
   return { user, profile, session };
 }
 
+export async function createDriver(
+  schoolId: mongoose.Types.ObjectId,
+  overrides: { name?: string; status?: IUser['status'] } = {}
+): Promise<{ user: IUser; session: Session }> {
+  const user = await User.create({
+    schoolId,
+    name: overrides.name ?? 'Test Driver',
+    phone: nextPhone(),
+    role: 'DRIVER',
+    status: overrides.status ?? 'ACTIVE',
+  });
+  const session = asUser({ id: user._id.toString(), role: 'DRIVER', schoolId: schoolId.toString(), name: user.name });
+  return { user, session };
+}
+
 export function sessionFor(user: TestSessionUser): Session {
   return asUser(user);
 }
