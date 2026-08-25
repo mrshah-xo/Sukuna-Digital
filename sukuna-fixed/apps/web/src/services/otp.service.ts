@@ -120,12 +120,16 @@ class OTPService {
   }
 
   /**
-   * Akash SMS Provider implementation
+   * Akash SMS Provider implementation.
+   *
+   * Development intentionally avoids logging the OTP value. Production
+   * providers should send the code through their API without persisting or
+   * printing plaintext secrets.
    */
   private async akashSmsProvider({ phone, otp }: OTPPayload): Promise<boolean> {
-    console.log(`\n[AKASH SMS SERVICE]`);
-    console.log(`Sending OTP: ${otp} to Phone: ${phone}`);
-    console.log(`Status: SUCCESS\n`);
+    void otp;
+    console.log(`[AKASH SMS SERVICE] OTP requested for Phone: ${phone}`);
+    console.log('Status: SUCCESS');
     
     // TODO: Implement actual Akash SMS API Call
     // const response = await fetch('https://aakashsms.com/admin/public/sms/v3/send', { ... })
