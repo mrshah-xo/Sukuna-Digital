@@ -14,7 +14,7 @@ const TeacherSchema = new Schema<ITeacher>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     schoolId: { type: Schema.Types.ObjectId, ref: 'School', required: true },
-    teacherId: { type: String, required: true, unique: true },
+    teacherId: { type: String, required: true },
     subjects: [{ type: String }],
     assignedClasses: [
       {
@@ -25,5 +25,7 @@ const TeacherSchema = new Schema<ITeacher>(
   },
   { timestamps: true }
 );
+
+TeacherSchema.index({ schoolId: 1, teacherId: 1 }, { unique: true });
 
 export const Teacher: mongoose.Model<ITeacher> = mongoose.models.Teacher || mongoose.model<ITeacher>('Teacher', TeacherSchema);
