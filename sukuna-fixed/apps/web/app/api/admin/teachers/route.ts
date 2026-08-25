@@ -5,6 +5,8 @@ import connectDB from '@/lib/mongodb';
 import { User, Teacher, type IUser, type ITeacher } from '@/models';
 import { createTeacherSchema, type CreateTeacherInput } from '@/lib/admin-schemas';
 
+export const dynamic = 'force-dynamic';
+
 export const GET = apiHandler(async (req, { user }) => {
   await connectDB();
 
