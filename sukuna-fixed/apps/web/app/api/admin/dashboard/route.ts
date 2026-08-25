@@ -4,6 +4,8 @@ import { apiHandler } from '@/lib/api-handler';
 import connectDB from '@/lib/mongodb';
 import { Student, Teacher, Attendance, Assignment, BusRoute, Notice, AuditLog } from '@/models';
 
+export const dynamic = 'force-dynamic';
+
 export const GET = apiHandler(async (req, { user }) => {
   await connectDB();
   const schoolId = new mongoose.Types.ObjectId(user.schoolId);
