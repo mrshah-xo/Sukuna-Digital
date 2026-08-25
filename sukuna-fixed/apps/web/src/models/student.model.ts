@@ -16,7 +16,7 @@ const StudentSchema = new Schema<IStudent>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     schoolId: { type: Schema.Types.ObjectId, ref: 'School', required: true },
-    studentId: { type: String, required: true, unique: true },
+    studentId: { type: String, required: true },
     grade: { type: String, required: true },
     section: { type: String, required: true },
     assignedBusRouteId: { type: Schema.Types.ObjectId, ref: 'BusRoute' },
@@ -24,5 +24,8 @@ const StudentSchema = new Schema<IStudent>(
   },
   { timestamps: true }
 );
+
+StudentSchema.index({ schoolId: 1, studentId: 1 }, { unique: true });
+StudentSchema.index({ schoolId: 1, grade: 1, section: 1 });
 
 export const Student: mongoose.Model<IStudent> = mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);
