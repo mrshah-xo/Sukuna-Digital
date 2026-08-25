@@ -3,6 +3,8 @@ import { apiHandler } from '@/lib/api-handler';
 import { User, Student, Teacher } from '@/models';
 import connectDB from '@/lib/mongodb';
 
+export const dynamic = 'force-dynamic';
+
 export const GET = apiHandler(
   async (_req, { user }) => {
     await connectDB();
