@@ -41,7 +41,7 @@
 
 ## 8. Database / Model Compatibility Result
 - **Result:** **COMPATIBLE**.
-- The `backend/tsconfig.json` successfully aliases `@models/*` to `sukuna-fixed/apps/web/src/models/*`. Both Next.js and Express use identical Mongoose instances connecting to the same cluster.
+- The `backend/tsconfig.json` successfully aliases `@models/*` to `sukuna-platform/apps/web/src/models/*`. Both Next.js and Express use identical Mongoose instances connecting to the same cluster.
 - `tsc --noEmit` compiles successfully under `NodeNext` resolution rules. No runtime conflicts exist because Node caches the singleton Mongoose instance locally per-process.
 
 ## 9. Regression Result for School, Post, Memory
