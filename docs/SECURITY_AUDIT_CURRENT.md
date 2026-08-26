@@ -6,7 +6,7 @@ Audit date: 2026-08-25
 
 ### HIGH: Unauthenticated Transport Route Read
 
-- Affected file: `sukuna-fixed/apps/web/app/api/transport/[routeId]/status/route.ts`
+- Affected file: `sukuna-platform/apps/web/app/api/transport/[routeId]/status/route.ts`
 - Cause: GET previously loaded `BusRoute.findById(params.routeId)` without `auth()`, role checks, or school scoping.
 - Risk: any caller with a route id could read transport status/location.
 - Remediation: moved GET onto `apiHandler`, required authenticated roles, validated ObjectId, and queried by `{ _id, schoolId }`.
@@ -14,7 +14,7 @@ Audit date: 2026-08-25
 
 ### HIGH: Cross-School Transport Route Update
 
-- Affected file: `sukuna-fixed/apps/web/app/api/transport/[routeId]/status/route.ts`
+- Affected file: `sukuna-platform/apps/web/app/api/transport/[routeId]/status/route.ts`
 - Cause: PATCH previously loaded by route id only and allowed any ADMIN/DRIVER session to update it.
 - Risk: a driver or admin from one school could update another school's route if they knew the ObjectId.
 - Remediation: moved PATCH onto `apiHandler`, required school tenant, scoped query by `schoolId`, and restricted drivers to their assigned route.
@@ -22,7 +22,7 @@ Audit date: 2026-08-25
 
 ### MEDIUM: Plaintext OTP Logging
 
-- Affected file: `sukuna-fixed/apps/web/src/services/otp.service.ts`
+- Affected file: `sukuna-platform/apps/web/src/services/otp.service.ts`
 - Cause: development SMS provider printed the OTP value.
 - Risk: OTPs could leak into logs.
 - Remediation: provider now logs only that an OTP was requested.
@@ -30,7 +30,7 @@ Audit date: 2026-08-25
 
 ### MEDIUM: Build Ignored TypeScript And ESLint Failures
 
-- Affected file: `sukuna-fixed/apps/web/next.config.js`
+- Affected file: `sukuna-platform/apps/web/next.config.js`
 - Cause: `ignoreDuringBuilds` and `ignoreBuildErrors` were enabled.
 - Risk: production builds could ship known type or lint problems.
 - Remediation: removed both suppressions.
@@ -58,4 +58,3 @@ Audit date: 2026-08-25
 - Risk: payment security cannot be fully verified until real endpoints exist.
 - Remediation: enforce admin/principal-only verification, audit logging, server-authoritative amounts, and school-scoped proof access when implemented.
 - Status: not applicable to current active API.
-
