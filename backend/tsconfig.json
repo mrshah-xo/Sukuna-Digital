@@ -11,7 +11,7 @@
     "moduleResolution": "NodeNext",
     "paths": {
       "@/*": ["./src/*"],
-      "@models/*": ["../sukuna-fixed/apps/web/src/models/*"]
+      "@models/*": ["../sukuna-platform/apps/web/src/models/*"]
     }
   },
   "include": ["src/**/*"],
