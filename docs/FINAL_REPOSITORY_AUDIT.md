@@ -4,11 +4,11 @@ Audit date: 2026-08-25
 
 ## A. Current Architecture
 
-Production is the Next.js/Turborepo application in `sukuna-fixed/apps/web`.
+Production is the Next.js/Turborepo application in `sukuna-platform/apps/web`.
 
 ## B. Active Application
 
-`sukuna-fixed/apps/web` contains the active frontend, API routes, Auth.js authentication, Mongoose models, and tests.
+`sukuna-platform/apps/web` contains the active frontend, API routes, Auth.js authentication, Mongoose models, and tests.
 
 ## C. Repository Structure
 
@@ -55,7 +55,7 @@ Active protected APIs should use `apiHandler`. Admin students/teachers/dashboard
 
 ## K. Dependency Cleanup
 
-The active package manager is npm. `sukuna-fixed/package-lock.json` and `backend/package-lock.json` are real lockfiles. Root `package-lock.json` is empty and not tied to a package manifest.
+The active package manager is npm. `sukuna-platform/package-lock.json` and `backend/package-lock.json` are real lockfiles. Root `package-lock.json` is empty and not tied to a package manifest.
 
 ## L. Test Results
 
@@ -93,7 +93,7 @@ Pending command execution in this pass.
 
 ## Q. Remaining Technical Debt
 
-- Decide whether to remove or archive experimental `backend/` and `premium-education-platform-nextjs/`.
+- Decide whether to remove or archive experimental `backend/` after the `admin-console/` project receives a supported build path.
 - Add explicit `.env.example` files.
 - Expand API standardization to OTP routes.
 - Add payment/upload endpoints only with tests for authorization and school isolation.
@@ -106,4 +106,3 @@ Pending command execution in this pass.
 3. Add environment examples and deployment notes.
 4. Decide the fate of the Express backend before adding more backend code.
 5. Expand tests around payment, uploads, and user profile access as those APIs become active.
-
