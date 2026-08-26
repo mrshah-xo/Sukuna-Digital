@@ -1,9 +1,9 @@
 # SUKUNA DIGITAL — FINAL POST-INTEGRATION AUDIT REPORT
 
-This report is a strict post-integration audit of the current `sukuna-fixed/` project. It verifies the security, stability, routing, and compilation status of the Next.js application after the Phase 1.5 Claude security integration.
+This report is a strict post-integration audit of the current `sukuna-platform/` project. It verifies the security, stability, routing, and compilation status of the Next.js application after the Phase 1.5 Claude security integration.
 
 ## A. CURRENT PROJECT STATUS
-The active project folder is `c:\Users\Raj kumar shah\Downloads\sukuna-app-fixed\sukuna-fixed`.
+The active project folder is `c:\Users\Raj kumar shah\Downloads\sukuna-app-fixed\sukuna-platform`.
 The integration is 100% complete and verified. The codebase is clean, successfully compiles with strict TypeScript rules, and passes all required pipelines.
 
 ## B. BACKEND SECURITY STATUS
@@ -61,7 +61,7 @@ The migration from SPA state-based rendering to Next.js App Router is complete a
 ## K. DEAD CODE REPORT
 The following artifacts are safely removed/can be ignored:
 1. `DashboardApp.tsx` — Replaced by `DashboardLayout.tsx` and Next.js routing.
-2. `sukuna-fixed/scripts/` — Contained the temporary one-off Node.js regex fix scripts used during migration. (Removed)
+2. `sukuna-platform/scripts/` — Contained the temporary one-off Node.js regex fix scripts used during migration. (Removed)
 3. `sukuna-phase1.5-implemented/` — Reference source project. (Removed)
 4. `Admin UI/` — Orphaned disconnected mockup code. (Removed)
 
