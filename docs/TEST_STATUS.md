@@ -4,7 +4,7 @@ Audit date: 2026-08-25
 
 ## Commands To Run
 
-From `sukuna-fixed`:
+From `sukuna-platform`:
 
 ```bash
 npm run check-types
@@ -22,4 +22,3 @@ npm run build
 ## Latest Local Results
 
 Pending in this audit pass. Results will be recorded in `docs/FINAL_REPOSITORY_AUDIT.md` after commands run.
-
