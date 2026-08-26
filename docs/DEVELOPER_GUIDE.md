@@ -2,7 +2,7 @@
 
 ## Where To Start
 
-Use `sukuna-fixed/apps/web` for active application work. Treat `backend/` and `premium-education-platform-nextjs/` as experimental/reference code unless a new architecture decision changes that.
+Use `sukuna-platform/apps/web` for active platform application work. Treat `admin-console/` as the Sukuna Digital Admin Console project and `backend/` as experimental/reference code unless a new architecture decision changes that.
 
 ## Request Flow
 
@@ -35,7 +35,7 @@ Add new schemas under `src/models`, export them from `src/models/index.ts`, incl
 
 ## Tests
 
-Unit and integration tests live under `sukuna-fixed/apps/web/tests`. Use `callRoute` to invoke App Router handlers directly and `mockAuthFn` to simulate sessions.
+Unit and integration tests live under `sukuna-platform/apps/web/tests`. Use `callRoute` to invoke App Router handlers directly and `mockAuthFn` to simulate sessions.
 
 ## Coding Conventions
 
@@ -44,4 +44,3 @@ Unit and integration tests live under `sukuna-fixed/apps/web/tests`. Use `callRo
 - Use TypeScript types instead of `any`.
 - Keep database access school-scoped.
 - Add tests for auth, RBAC, school isolation, IDOR, validation, and payment/upload security as those endpoints are implemented.
-
