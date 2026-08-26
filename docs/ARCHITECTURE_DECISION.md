@@ -4,7 +4,7 @@ Audit date: 2026-08-25
 
 ## Decision
 
-The current production architecture is the Next.js application in `sukuna-fixed/apps/web`.
+The current production architecture is the Next.js application in `sukuna-platform/apps/web`.
 
 ## Frontend
 
@@ -15,7 +15,7 @@ The current production architecture is the Next.js application in `sukuna-fixed/
 
 ## Backend
 
-- Active backend: Next.js route handlers in `sukuna-fixed/apps/web/app/api`.
+- Active backend: Next.js route handlers in `sukuna-platform/apps/web/app/api`.
 - API wrapper: `src/lib/api-handler.ts`.
 - Authorization primitives: `src/lib/api-guard.ts`.
 - Experimental backend: root `backend/` Express app. It is not production because no product routes are mounted and the active frontend does not call it.
@@ -24,8 +24,8 @@ The current production architecture is the Next.js application in `sukuna-fixed/
 
 - Database: MongoDB.
 - ODM: Mongoose.
-- Connection: `sukuna-fixed/apps/web/src/lib/mongodb.ts`.
-- Active models: `sukuna-fixed/apps/web/src/models`.
+- Connection: `sukuna-platform/apps/web/src/lib/mongodb.ts`.
+- Active models: `sukuna-platform/apps/web/src/models`.
 
 ## Authentication
 
@@ -48,5 +48,4 @@ User -> Next.js page/component -> Auth.js session -> middleware/API guard -> rou
 ## Experimental - Not Used By Production
 
 - `backend/`: Express/Passport scaffold.
-- `premium-education-platform-nextjs/`: prototype/imported UI tree.
-
+- `admin-console/`: Sukuna Digital Admin Console / Admin Panel tree.
