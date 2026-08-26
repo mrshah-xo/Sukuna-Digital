@@ -4,7 +4,7 @@ Audit date: 2026-08-25
 
 ## Database
 
-MongoDB via Mongoose. The active connection helper is `sukuna-fixed/apps/web/src/lib/mongodb.ts`.
+MongoDB via Mongoose. The active connection helper is `sukuna-platform/apps/web/src/lib/mongodb.ts`.
 
 ## Tenant Boundary
 
@@ -48,4 +48,3 @@ Most product collections include `schoolId`. API routes must derive the school i
 ## Operational Note
 
 If a database already contains old global unique indexes for `studentId` or `teacherId`, drop those indexes before relying on the new compound tenant-scoped uniqueness.
-
