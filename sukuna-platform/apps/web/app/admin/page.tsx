@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { apiClient } from '@/services/api-client';
+import {
+  GraduationCap, Briefcase, Users, Activity, LogIn, Phone,
+  AlertTriangle, Brain, CreditCard, CalendarDays, TrendingUp, TrendingDown,
+} from 'lucide-react';
 
 interface DashboardMetrics {
   totalStudents: number;
@@ -29,6 +33,76 @@ function getErrorMessage(err: unknown, fallback: string): string {
   return apiError?.message || fallback;
 }
 
+interface MetricCardProps {
+  label: string;
+  value: string | number;
+  icon: React.ElementType;
+  trend?: string;
+  trendUp?: boolean;
+  accent?: string;
+  sub?: string;
+}
+
+function MetricCard({ label, value, icon: Icon, trend, trendUp, accent = '#0066cc', sub }: MetricCardProps) {
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        border: '1px solid #e0e0e0',
+        borderRadius: '18px',
+        padding: '22px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '14px',
+        cursor: 'default',
+        transition: 'box-shadow 0.15s ease',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.06)')}
+      onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '10px',
+            background: `${accent}18`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon size={17} color={accent} strokeWidth={1.75} />
+        </div>
+        {trend && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '3px',
+              fontSize: '11.5px',
+              fontWeight: 500,
+              color: trendUp ? '#34c759' : '#ff3b30',
+            }}
+          >
+            {trendUp ? <TrendingUp size={11} strokeWidth={2} /> : <TrendingDown size={11} strokeWidth={2} />}
+            {trend}
+          </div>
+        )}
+      </div>
+      <div>
+        <div style={{ fontSize: '30px', fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.8px', lineHeight: 1.1 }}>
+          {value}
+        </div>
+        <div style={{ fontSize: '12.5px', color: '#7a7a7a', marginTop: '4px', letterSpacing: '-0.05px' }}>
+          {label}
+        </div>
+        {sub && <div style={{ fontSize: '11px', color: '#b0b0b8', marginTop: '2px' }}>{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,145 +123,141 @@ export default function AdminDashboardPage() {
   }, []);
 
   if (loading) {
-    return <div className="flex h-[50vh] items-center justify-center text-[#6E6E73]">Loading dashboard...</div>;
+    return (
+      <div style={{ display: 'flex', height: '50vh', alignItems: 'center', justifyContent: 'center', color: '#7a7a7a' }}>
+        Loading dashboard...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="flex h-[50vh] items-center justify-center text-red-500">{error}</div>;
+    return (
+      <div style={{ display: 'flex', height: '50vh', alignItems: 'center', justifyContent: 'center', color: '#ff3b30' }}>
+        {error}
+      </div>
+    );
   }
 
   const { metrics, recentActivity } = data as DashboardData;
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
-      
-      {/* SECTION 1: Top KPI Cards */}
-      <section>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-[#1D1D1F] tracking-tight">Overview</h2>
-          <div className="text-sm text-[#6E6E73] font-medium">Updated just now</div>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          <KPICard title="Total Students" value={metrics?.totalStudents || 0} trend="Active" color="bg-blue-50 text-blue-600" />
-          <KPICard title="Total Teachers" value={metrics?.totalTeachers || 0} trend="Active" color="bg-indigo-50 text-indigo-600" />
-          <KPICard title="Attendance Today" value={`${metrics?.attendanceToday || 0}%`} trend="Overall" color="bg-green-50 text-green-600" />
-          <KPICard title="Pending Assignments" value={metrics?.pendingAssignments || 0} trend="Due soon" color="bg-orange-50 text-orange-600" />
-          <KPICard title="Active Routes" value={metrics?.activeRoutes || 0} trend="Transport" color="bg-teal-50 text-teal-600" />
-          <KPICard title="Recent Notices" value={metrics?.recentNotices || 0} trend="Last 7 days" color="bg-red-50 text-red-600" />
-        </div>
-      </section>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', paddingBottom: '40px' }}>
+      {/* Title Section */}
+      <div style={{ marginBottom: '12px' }}>
+        <h2
+          style={{
+            fontSize: '22px',
+            fontWeight: 600,
+            color: '#1d1d1f',
+            letterSpacing: '-0.4px',
+            margin: 0,
+          }}
+        >
+          Live School Overview
+        </h2>
+        <p style={{ fontSize: '14px', color: '#7a7a7a', marginTop: '3px', letterSpacing: '-0.05px' }}>
+          Real-time metrics across your entire school platform
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* SECTION 2: Analytics Overview */}
-        <section className="lg:col-span-2 flex flex-col gap-6">
-          <div className="bg-white rounded-[24px] p-6 shadow-sm border border-[#E5E7EB]">
-            <h3 className="font-semibold text-[#1D1D1F] mb-6">Attendance Trend</h3>
-            <div className="h-[250px] flex items-end justify-between gap-2 border-b border-[#E5E7EB] pb-2">
-              {/* Dummy Chart Bars for now as we don't have historical API yet */}
-              {[80, 85, 92, 94, 91, 95, 89, 90, 96, 94].map((h, i) => (
-                <div key={i} className="w-full bg-[#007AFF]/20 rounded-t-md hover:bg-[#007AFF] transition-colors relative group" style={{ height: `${h}%` }}>
-                  <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-[#1D1D1F] text-white text-[10px] py-1 px-2 rounded font-medium transition-opacity">{h}%</div>
+      {/* Metric Cards Grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '16px',
+        }}
+      >
+        <MetricCard
+          label="Total Students"
+          value={metrics?.totalStudents || 0}
+          icon={GraduationCap}
+          accent="#0066cc"
+        />
+        <MetricCard
+          label="Total Teachers"
+          value={metrics?.totalTeachers || 0}
+          icon={Briefcase}
+          accent="#5856d6"
+        />
+        <MetricCard label="Attendance Today" value={`${metrics?.attendanceToday || 0}%`} icon={Activity} accent="#34c759" />
+        <MetricCard
+          label="Pending Assignments"
+          value={metrics?.pendingAssignments || 0}
+          icon={AlertTriangle}
+          accent="#ff9500"
+        />
+        <MetricCard label="Active Routes" value={metrics?.activeRoutes || 0} icon={Users} accent="#30d158" />
+        <MetricCard label="Recent Notices" value={metrics?.recentNotices || 0} icon={Phone} accent="#ff3b30" />
+      </div>
+
+      {/* Recent Activity Section */}
+      <div
+        style={{
+          background: '#ffffff',
+          border: '1px solid #e0e0e0',
+          borderRadius: '18px',
+          padding: '28px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1d1d1f', margin: 0 }}>Recent Activity</h3>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {recentActivity && recentActivity.length > 0 ? (
+            recentActivity.map((activity: RecentActivity, index: number) => (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  borderBottom: index < recentActivity.length - 1 ? '1px solid #e8e8ed' : 'none',
+                  paddingBottom: index < recentActivity.length - 1 ? '16px' : '0',
+                }}
+              >
+                <div
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    background: '#0066cc18',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Activity size={14} color="#0066cc" strokeWidth={1.5} />
                 </div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-[#6E6E73] font-medium uppercase tracking-wider">
-              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-[24px] p-6 shadow-sm border border-[#E5E7EB]">
-              <h3 className="font-semibold text-[#1D1D1F] mb-4">Student Growth</h3>
-              <div className="flex items-center gap-4">
-                <div className="w-24 h-24 rounded-full border-8 border-[#007AFF] border-r-gray-100" />
-                <div>
-                  <div className="text-3xl font-bold text-[#1D1D1F] tracking-tight">{metrics?.totalStudents || 0}</div>
-                  <div className="text-sm text-[#34C759] font-medium">Enrolled</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 500, color: '#1d1d1f' }}>
+                    {activity.action}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#7a7a7a', marginTop: '2px' }}>
+                    {activity.resource}
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginTop: '4px',
+                      fontSize: '11px',
+                      color: '#b0b0b8',
+                    }}
+                  >
+                    <span style={{ fontWeight: 500 }}>{activity.userId?.name || 'System'}</span>
+                    <span style={{ opacity: 0.5 }}>•</span>
+                    <span>{new Date(activity.timestamp).toLocaleTimeString()}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="bg-white rounded-[24px] p-6 shadow-sm border border-[#E5E7EB]">
-              <h3 className="font-semibold text-[#1D1D1F] mb-4">Transport Status</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between"><span className="text-sm text-[#6E6E73] font-medium">Active Routes</span><span className="text-sm font-semibold text-[#1D1D1F]">{metrics?.activeRoutes || 0}</span></div>
-                <div className="w-full bg-gray-100 rounded-full h-2"><div className="bg-[#34C759] h-2 rounded-full w-[100%]" /></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 3: Recent Activity (Audit Logs) */}
-        <section>
-          <div className="bg-white rounded-[24px] p-6 shadow-sm border border-[#E5E7EB] h-full">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-semibold text-[#1D1D1F]">Recent Activity</h3>
-            </div>
-            <div className="flex flex-col gap-6">
-              {recentActivity && recentActivity.length > 0 ? (
-                recentActivity.map((activity: RecentActivity, index: number) => (
-                  <ActivityItem 
-                    key={index}
-                    action={activity.action} 
-                    resource={activity.resource} 
-                    user={activity.userId?.name || 'System'} 
-                    time={new Date(activity.timestamp).toLocaleTimeString()} 
-                    icon={<BellIcon />}
-                    color="bg-blue-50 text-blue-600"
-                  />
-                ))
-              ) : (
-                <div className="text-sm text-[#6E6E73]">No recent activity</div>
-              )}
-            </div>
-          </div>
-        </section>
-      </div>
-      
-    </div>
-  );
-}
-
-function KPICard({ title, value, trend, color }: { title: string, value: string | number, trend: string, color: string }) {
-  return (
-    <div className="bg-white rounded-[24px] p-5 shadow-sm border border-[#E5E7EB] flex flex-col justify-between">
-      <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center font-bold mb-4 ${color}`}>
-        <div className="w-4 h-4 bg-current rounded-sm opacity-50" />
-      </div>
-      <p className="text-[#6E6E73] text-xs font-medium uppercase tracking-wider mb-1">{title}</p>
-      <h4 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">{value}</h4>
-      <p className="text-[#6E6E73] text-[11px] mt-2 font-medium">{trend}</p>
-    </div>
-  );
-}
-
-interface ActivityItemProps {
-  action: string;
-  resource: string;
-  user: string;
-  time: string;
-  icon: React.ReactNode;
-  color: string;
-}
-
-function ActivityItem({ action, resource, user, time, icon, color }: ActivityItemProps) {
-  return (
-    <div className="flex gap-4">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${color}`}>
-        {icon}
-      </div>
-      <div className="flex flex-col border-b border-[#E5E7EB] pb-5 w-full">
-        <span className="text-sm font-semibold text-[#1D1D1F]">{action}</span>
-        <span className="text-sm text-[#1D1D1F] mt-0.5">{resource}</span>
-        <div className="flex items-center gap-2 mt-2">
-          <span className="text-[11px] font-medium text-[#6E6E73] uppercase tracking-wider">{user}</span>
-          <span className="w-1 h-1 rounded-full bg-[#E5E7EB]" />
-          <span className="text-[11px] font-medium text-[#6E6E73]">{time}</span>
+            ))
+          ) : (
+            <div style={{ fontSize: '13px', color: '#7a7a7a' }}>No recent activity</div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
-function BellIcon() { return <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" strokeLinecap="round" strokeLinejoin="round"/><path d="M13.73 21a2 2 0 01-3.46 0" strokeLinecap="round" strokeLinejoin="round"/></svg> }
