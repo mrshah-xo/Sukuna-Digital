@@ -1,9 +1,9 @@
 "use client";
 
-import { Bell, Star, Bus, Calendar, BookOpen, TrendingUp, Clock, FileText } from 'lucide-react';
+import { Bell, Star, Bus, Calendar, BookOpen, TrendingUp, Clock, FileText, ShieldAlert } from 'lucide-react';
 import { useProfile } from '@/contexts/ProfileContext';
 
-export type TabType = 'home' | 'sukuna-book' | 'calendar' | 'memory' | 'profile' | 'settings' | 'library' | 'bus-track' | 'evaluation' | 'notes-mandir' | 'teachers';
+export type TabType = 'home' | 'sos' | 'sukuna-book' | 'calendar' | 'memory' | 'profile' | 'settings' | 'library' | 'bus-track' | 'evaluation' | 'notes-mandir' | 'teachers';
 
 
 interface HomePageProps {
@@ -47,6 +47,12 @@ export default function HomePage({ onNavigate }: HomePageProps) {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <button onClick={() => onNavigate('sos')} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-lg transition-all flex flex-col items-center gap-2">
+          <div className="size-12 bg-red-50 rounded-full flex items-center justify-center">
+            <ShieldAlert className="text-[#DC2626]" size={24} />
+          </div>
+          <span className="text-sm font-medium text-[#0F172A]">SOS & Safety</span>
+        </button>
         <button onClick={() => onNavigate('calendar')} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-lg transition-all flex flex-col items-center gap-2">
           <div className="size-12 bg-blue-50 rounded-full flex items-center justify-center">
             <Calendar className="text-[#2563EB]" size={24} />

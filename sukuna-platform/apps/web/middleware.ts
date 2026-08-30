@@ -50,6 +50,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    // Skip Next.js internals, static assets, and all public directory subfolders.
+    // Without these exclusions the middleware auth-check intercepts asset requests
+    // (e.g. /images/sukuna-logo.png) and redirects them to /login.
+    '/((?!_next/static|_next/image|favicon.ico|public|images|fonts|icons|videos).*)',
   ],
 };

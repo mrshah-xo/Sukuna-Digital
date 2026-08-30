@@ -14,7 +14,9 @@ import {
   Menu,
   X,
   Settings,
+  ShieldAlert,
 } from "lucide-react";
+import ActiveSosIndicator from "./sos/ActiveSosIndicator";
 import HomePage from "./HomePage";
 import MemoryWall from "./MemoryWall";
 import SukunaBook from "./SukunaBook";
@@ -30,6 +32,7 @@ import NotesMandir from "./NotesMandir";
 
 export type TabType =
   | "home"
+  | "sos"
   | "sukuna-book"
   | "calendar"
   | "memory"
@@ -44,6 +47,7 @@ export type TabType =
 
 const TAB_IDS: readonly TabType[] = [
   "home",
+  "sos",
   "sukuna-book",
   "calendar",
   "memory",
@@ -122,6 +126,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   // Sidebar nav items (desktop — all sections)
   const sidebarNavItems = [
     { id: "home" as TabType, icon: Home, label: "Home" },
+    { id: "sos" as TabType, icon: ShieldAlert, label: "SOS & Safety" },
     {
       id: "sukuna-book" as TabType,
       icon: BookOpen,
@@ -153,6 +158,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   // Hamburger menu items (mobile overflow)
   const mobileMenuItems = [
     ...bottomNavItems,
+    { id: "sos" as TabType, icon: ShieldAlert, label: "SOS & Safety" },
     {
       id: "teachers" as TabType,
       icon: MessageSquare,
@@ -224,7 +230,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           >
             <div className="flex items-center gap-3">
               <Image
-                src="/src/imports/ChatGPT_Image_May_15__2026__02_29_14_PM_Zawa-1.png"
+                src="/images/sukuna-logo.png"
                 alt="Sukuna School Logo"
                 width={36}
                 height={36}
@@ -380,7 +386,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         >
           <div className="flex items-center gap-2">
             <Image
-              src="/src/imports/ChatGPT_Image_May_15__2026__02_29_14_PM_Zawa-1.png"
+              src="/images/sukuna-logo.png"
               alt="Sukuna School Logo"
               width={28}
               height={28}
@@ -479,6 +485,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           className="flex-1 pb-28 md:pb-0 pt-[44px] md:pt-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           style={{ backgroundColor: "#f5f5f7" }}
         >
+          <ActiveSosIndicator />
           {children}
         </main>
 
