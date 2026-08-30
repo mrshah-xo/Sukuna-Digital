@@ -1,0 +1,2145 @@
+diff --git a/sukuna-platform/apps/web/app/dashboard/layout.tsx b/sukuna-platform/apps/web/app/dashboard/layout.tsx
+index a6d7b48..a721f78 100644
+--- a/sukuna-platform/apps/web/app/dashboard/layout.tsx
++++ b/sukuna-platform/apps/web/app/dashboard/layout.tsx
+@@ -1,5 +1,10 @@
+ import DashboardLayout from '@/components/dashboard/DashboardLayout';
++import { SosSessionProvider } from '@/components/dashboard/sos/SosSessionContext';
+ 
+ export default function Layout({ children }: { children: React.ReactNode }) {
+-  return <DashboardLayout>{children}</DashboardLayout>;
++  return (
++    <SosSessionProvider>
++      <DashboardLayout>{children}</DashboardLayout>
++    </SosSessionProvider>
++  );
+ }
+diff --git a/sukuna-platform/apps/web/app/dashboard/sos/history/[eventId]/page.tsx b/sukuna-platform/apps/web/app/dashboard/sos/history/[eventId]/page.tsx
+new file mode 100644
+index 0000000..8693cf0
+--- /dev/null
++++ b/sukuna-platform/apps/web/app/dashboard/sos/history/[eventId]/page.tsx
+@@ -0,0 +1,9 @@
++import HistoryDetailScreen from '@/components/dashboard/sos/HistoryDetailScreen';
++
++export default function SosHistoryDetailPage({
++  params,
++}: {
++  params: { eventId: string };
++}) {
++  return <HistoryDetailScreen eventId={params.eventId} />;
++}
+diff --git a/sukuna-platform/apps/web/app/dashboard/sos/history/page.tsx b/sukuna-platform/apps/web/app/dashboard/sos/history/page.tsx
+new file mode 100644
+index 0000000..09e8ea5
+--- /dev/null
++++ b/sukuna-platform/apps/web/app/dashboard/sos/history/page.tsx
+@@ -0,0 +1,5 @@
++import HistoryScreen from '@/components/dashboard/sos/HistoryScreen';
++
++export default function SosHistoryPage() {
++  return <HistoryScreen />;
++}
+diff --git a/sukuna-platform/apps/web/app/dashboard/sos/layout.tsx b/sukuna-platform/apps/web/app/dashboard/sos/layout.tsx
+new file mode 100644
+index 0000000..2763426
+--- /dev/null
++++ b/sukuna-platform/apps/web/app/dashboard/sos/layout.tsx
+@@ -0,0 +1,10 @@
++import SosNav from '@/components/dashboard/sos/SosNav';
++
++export default function SosLayout({ children }: { children: React.ReactNode }) {
++  return (
++    <div className="max-w-4xl mx-auto w-full">
++      <SosNav />
++      {children}
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/app/dashboard/sos/location/page.tsx b/sukuna-platform/apps/web/app/dashboard/sos/location/page.tsx
+new file mode 100644
+index 0000000..134a417
+--- /dev/null
++++ b/sukuna-platform/apps/web/app/dashboard/sos/location/page.tsx
+@@ -0,0 +1,5 @@
++import LocationScreen from '@/components/dashboard/sos/LocationScreen';
++
++export default function SosLocationPage() {
++  return <LocationScreen />;
++}
+diff --git a/sukuna-platform/apps/web/app/dashboard/sos/location/privacy/page.tsx b/sukuna-platform/apps/web/app/dashboard/sos/location/privacy/page.tsx
+new file mode 100644
+index 0000000..9a7e1cb
+--- /dev/null
++++ b/sukuna-platform/apps/web/app/dashboard/sos/location/privacy/page.tsx
+@@ -0,0 +1,5 @@
++import LocationPrivacyScreen from '@/components/dashboard/sos/LocationPrivacyScreen';
++
++export default function SosLocationPrivacyPage() {
++  return <LocationPrivacyScreen />;
++}
+diff --git a/sukuna-platform/apps/web/app/dashboard/sos/page.tsx b/sukuna-platform/apps/web/app/dashboard/sos/page.tsx
+new file mode 100644
+index 0000000..51d1b8b
+--- /dev/null
++++ b/sukuna-platform/apps/web/app/dashboard/sos/page.tsx
+@@ -0,0 +1,5 @@
++import SosHomeScreen from '@/components/dashboard/sos/SosHomeScreen';
++
++export default function SosPage() {
++  return <SosHomeScreen />;
++}
+diff --git a/sukuna-platform/apps/web/app/dashboard/sos/safety/page.tsx b/sukuna-platform/apps/web/app/dashboard/sos/safety/page.tsx
+new file mode 100644
+index 0000000..7ac0c08
+--- /dev/null
++++ b/sukuna-platform/apps/web/app/dashboard/sos/safety/page.tsx
+@@ -0,0 +1,5 @@
++import SafetyCheckScreen from '@/components/dashboard/sos/SafetyCheckScreen';
++
++export default function SosSafetyPage() {
++  return <SafetyCheckScreen />;
++}
+diff --git a/sukuna-platform/apps/web/app/globals.css b/sukuna-platform/apps/web/app/globals.css
+index 098a2dc..b637c0f 100644
+--- a/sukuna-platform/apps/web/app/globals.css
++++ b/sukuna-platform/apps/web/app/globals.css
+@@ -147,6 +147,23 @@ body {
+   --color-sidebar-ring: var(--sidebar-ring);
+ }
+ 
++/*
++ * SOS & Safety — additional design tokens
++ * These extend (not replace) the single global design system above.
++ * Values are taken directly from DESIGN.md / the completed SOS Figma Make
++ * frontend. `--color-emergency` is a deliberately scoped exception color,
++ * used only for SOS activation/active states — see DESIGN.md "Do's and
++ * Don'ts" (single accent) and SOS Frontend/src/index.css for precedent.
++ */
++@theme {
++  --color-canvas: #ffffff;
++  --color-parchment: #f5f5f7;
++  --color-ink: #1d1d1f;
++  --color-ink-48: #7a7a7a;
++  --color-hairline: #e0e0e0;
++  --color-divider: #f0f0f0;
++}
++
+ @layer base {
+   * {
+     @apply border-border outline-ring/50;
+@@ -219,3 +236,102 @@ body {
+     line-height: 1.47;
+   }
+ }
++
++/* ── SOS & Safety — typography utilities (exact DESIGN.md values) ── */
++.type-display-md {
++  font-family: var(--font-display);
++  font-size: 34px;
++  font-weight: 600;
++  line-height: 1.47;
++  letter-spacing: -0.374px;
++}
++
++.type-tagline {
++  font-family: var(--font-display);
++  font-size: 21px;
++  font-weight: 600;
++  line-height: 1.19;
++  letter-spacing: 0.231px;
++}
++
++.type-body {
++  font-family: var(--font-text);
++  font-size: 17px;
++  font-weight: 400;
++  line-height: 1.47;
++  letter-spacing: -0.374px;
++}
++
++.type-body-strong {
++  font-family: var(--font-text);
++  font-size: 17px;
++  font-weight: 600;
++  line-height: 1.24;
++  letter-spacing: -0.374px;
++}
++
++.type-caption {
++  font-family: var(--font-text);
++  font-size: 14px;
++  font-weight: 400;
++  line-height: 1.43;
++  letter-spacing: -0.224px;
++}
++
++.type-caption-strong {
++  font-family: var(--font-text);
++  font-size: 14px;
++  font-weight: 600;
++  line-height: 1.29;
++  letter-spacing: -0.224px;
++}
++
++.type-nav {
++  font-family: var(--font-text);
++  font-size: 12px;
++  font-weight: 400;
++  line-height: 1.0;
++  letter-spacing: -0.12px;
++}
++
++.type-fine {
++  font-family: var(--font-text);
++  font-size: 12px;
++  font-weight: 400;
++  line-height: 1.0;
++  letter-spacing: -0.12px;
++}
++
++/* ── SOS & Safety — animations ── */
++@keyframes sos-ring-pulse {
++  0%, 100% { transform: scale(1); opacity: 0.35; }
++  50% { transform: scale(1.1); opacity: 0.1; }
++}
++
++@keyframes countdown-in {
++  0% { transform: scale(1.3); opacity: 0; }
++  25% { transform: scale(1); opacity: 1; }
++  75% { transform: scale(1); opacity: 1; }
++  100% { transform: scale(0.85); opacity: 0; }
++}
++
++@keyframes sos-slide-up {
++  from { transform: translateY(10px); opacity: 0; }
++  to { transform: translateY(0); opacity: 1; }
++}
++
++@keyframes sos-fade-in {
++  from { opacity: 0; }
++  to { opacity: 1; }
++}
++
++@keyframes live-dot {
++  0%, 100% { opacity: 1; }
++  50% { opacity: 0.3; }
++}
++
++.sos-ring-pulse { animation: sos-ring-pulse 2.5s ease-in-out infinite; }
++.countdown-number { animation: countdown-in 1s ease-in-out; }
++.slide-up { animation: sos-slide-up 0.28s ease-out; }
++.fade-in { animation: sos-fade-in 0.2s ease-out; }
++.live-dot { animation: live-dot 1.6s ease-in-out infinite; }
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/DashboardLayout.tsx b/sukuna-platform/apps/web/src/components/dashboard/DashboardLayout.tsx
+index dd038ba..350922d 100644
+--- a/sukuna-platform/apps/web/src/components/dashboard/DashboardLayout.tsx
++++ b/sukuna-platform/apps/web/src/components/dashboard/DashboardLayout.tsx
+@@ -14,7 +14,9 @@ import {
+   Menu,
+   X,
+   Settings,
++  ShieldAlert,
+ } from "lucide-react";
++import ActiveSosIndicator from "./sos/ActiveSosIndicator";
+ import HomePage from "./HomePage";
+ import MemoryWall from "./MemoryWall";
+ import SukunaBook from "./SukunaBook";
+@@ -30,6 +32,7 @@ import NotesMandir from "./NotesMandir";
+ 
+ export type TabType =
+   | "home"
++  | "sos"
+   | "sukuna-book"
+   | "calendar"
+   | "memory"
+@@ -44,6 +47,7 @@ export type TabType =
+ 
+ const TAB_IDS: readonly TabType[] = [
+   "home",
++  "sos",
+   "sukuna-book",
+   "calendar",
+   "memory",
+@@ -122,6 +126,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+   // Sidebar nav items (desktop — all sections)
+   const sidebarNavItems = [
+     { id: "home" as TabType, icon: Home, label: "Home" },
++    { id: "sos" as TabType, icon: ShieldAlert, label: "SOS & Safety" },
+     {
+       id: "sukuna-book" as TabType,
+       icon: BookOpen,
+@@ -153,6 +158,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+   // Hamburger menu items (mobile overflow)
+   const mobileMenuItems = [
+     ...bottomNavItems,
++    { id: "sos" as TabType, icon: ShieldAlert, label: "SOS & Safety" },
+     {
+       id: "teachers" as TabType,
+       icon: MessageSquare,
+@@ -479,6 +485,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+           className="flex-1 pb-28 md:pb-0 pt-[44px] md:pt-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+           style={{ backgroundColor: "#f5f5f7" }}
+         >
++          <ActiveSosIndicator />
+           {children}
+         </main>
+ 
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/HomePage.tsx b/sukuna-platform/apps/web/src/components/dashboard/HomePage.tsx
+index 7766811..5028f19 100644
+--- a/sukuna-platform/apps/web/src/components/dashboard/HomePage.tsx
++++ b/sukuna-platform/apps/web/src/components/dashboard/HomePage.tsx
+@@ -1,9 +1,9 @@
+ "use client";
+ 
+-import { Bell, Star, Bus, Calendar, BookOpen, TrendingUp, Clock, FileText } from 'lucide-react';
++import { Bell, Star, Bus, Calendar, BookOpen, TrendingUp, Clock, FileText, ShieldAlert } from 'lucide-react';
+ import { useProfile } from '@/contexts/ProfileContext';
+ 
+-export type TabType = 'home' | 'sukuna-book' | 'calendar' | 'memory' | 'profile' | 'settings' | 'library' | 'bus-track' | 'evaluation' | 'notes-mandir' | 'teachers';
++export type TabType = 'home' | 'sos' | 'sukuna-book' | 'calendar' | 'memory' | 'profile' | 'settings' | 'library' | 'bus-track' | 'evaluation' | 'notes-mandir' | 'teachers';
+ 
+ 
+ interface HomePageProps {
+@@ -47,6 +47,12 @@ export default function HomePage({ onNavigate }: HomePageProps) {
+ 
+       {/* Quick Actions */}
+       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
++        <button onClick={() => onNavigate('sos')} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-lg transition-all flex flex-col items-center gap-2">
++          <div className="size-12 bg-red-50 rounded-full flex items-center justify-center">
++            <ShieldAlert className="text-[#DC2626]" size={24} />
++          </div>
++          <span className="text-sm font-medium text-[#0F172A]">SOS & Safety</span>
++        </button>
+         <button onClick={() => onNavigate('calendar')} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-lg transition-all flex flex-col items-center gap-2">
+           <div className="size-12 bg-blue-50 rounded-full flex items-center justify-center">
+             <Calendar className="text-[#2563EB]" size={24} />
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/ActiveSosIndicator.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/ActiveSosIndicator.tsx
+new file mode 100644
+index 0000000..dd473c2
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/ActiveSosIndicator.tsx
+@@ -0,0 +1,61 @@
++"use client";
++
++import Link from 'next/link';
++import { usePathname } from 'next/navigation';
++import { useSosSession } from './SosSessionContext';
++
++/**
++ * Small persistent banner shown across the dashboard shell while an SOS
++ * session is active, so a student who navigates away from /dashboard/sos
++ * doesn't lose track of it. Hidden on the SOS routes themselves (those
++ * screens already show ample "active" status of their own).
++ *
++ * Reads only the public `sosState` from SosSessionContext — once a real
++ * backend/responder integration replaces the context's internal state
++ * source, this component needs no changes.
++ */
++export default function ActiveSosIndicator() {
++  const pathname = usePathname();
++  const { sosState } = useSosSession();
++
++  const isActive = sosState === 'active' || sosState === 'ack' || sosState === 'assistance';
++  const onSosRoute = pathname.startsWith('/dashboard/sos');
++
++  if (!isActive || onSosRoute) return null;
++
++  const label =
++    sosState === 'ack' ? 'SOS Acknowledged'
++    : sosState === 'assistance' ? 'Assistance In Progress'
++    : 'SOS Active';
++
++  return (
++    <Link
++      href="/dashboard/sos"
++      className="sticky top-0 z-20 flex items-center justify-between gap-3 transition-opacity active:opacity-90 fade-in"
++      style={{
++        background: '#FEF2F2',
++        borderBottom: '1px solid #FECACA',
++        padding: '9px 16px',
++        minHeight: 40,
++      }}
++      aria-label={`${label}. Tap to return to your active SOS.`}
++    >
++      <span className="flex items-center gap-[8px] min-w-0">
++        <span
++          className="live-dot"
++          style={{ width: 7, height: 7, borderRadius: '50%', background: '#DC2626', flexShrink: 0 }}
++          aria-hidden="true"
++        />
++        <span className="type-caption-strong truncate min-w-0" style={{ color: '#991B1B' }}>
++          {label}
++        </span>
++      </span>
++      <span className="type-caption-strong flex items-center gap-[4px] flex-shrink-0" style={{ color: '#DC2626' }}>
++        View
++        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
++          <path d="M9 18l6-6-6-6" stroke="#DC2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
++        </svg>
++      </span>
++    </Link>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/HistoryDetailScreen.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/HistoryDetailScreen.tsx
+new file mode 100644
+index 0000000..926108d
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/HistoryDetailScreen.tsx
+@@ -0,0 +1,63 @@
++"use client";
++
++import { useRouter } from 'next/navigation';
++import { AppHeader, Card, StatusBadge, InfoRow, SOS_SCREEN } from './ui';
++import { useSosEvent } from './useSosHistory';
++import type { SosEventStatus } from './types';
++
++const STATUS_MAP: Record<SosEventStatus, { variant: 'resolved' | 'cancelled' | 'active'; label: string }> = {
++  resolved: { variant: 'resolved', label: 'Resolved' },
++  cancelled: { variant: 'cancelled', label: 'Cancelled' },
++  active: { variant: 'active', label: 'Active' },
++};
++
++export default function HistoryDetailScreen({ eventId }: { eventId: string }) {
++  const router = useRouter();
++  const { event } = useSosEvent(eventId);
++  const onBack = () => router.push('/dashboard/sos/history');
++
++  if (!event) {
++    return (
++      <div className={SOS_SCREEN} style={{ background: '#f5f5f7' }}>
++        <AppHeader title="SOS Event Details" onBack={onBack} />
++        <div style={{ padding: '24px' }}>
++          <p className="type-body text-ink-48">This event couldn&apos;t be found.</p>
++        </div>
++      </div>
++    );
++  }
++
++  const { variant, label } = STATUS_MAP[event.status];
++
++  return (
++    <div className={SOS_SCREEN} style={{ background: '#f5f5f7' }}>
++      <AppHeader title="SOS Event Details" onBack={onBack} />
++      <div style={{ padding: '24px 24px 0' }}>
++        <Card className="mb-[17px]">
++          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
++            <div>
++              <p className="type-caption text-ink-48">{event.date}</p>
++              <p className="type-body-strong text-ink mt-[2px]">{event.time}</p>
++            </div>
++            <StatusBadge variant={variant} label={label} />
++          </div>
++          <InfoRow label="Date" value={event.date} />
++          <InfoRow label="Time" value={event.time} />
++          {event.duration && <InfoRow label="Duration" value={event.duration} />}
++          {event.resolvedTime && <InfoRow label="Resolved at" value={event.resolvedTime} />}
++          <InfoRow label="Location data" value="Not displayed" />
++        </Card>
++
++        <div style={{ background: '#f5f5f7', border: '1px solid #e0e0e0', borderRadius: 11, padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
++          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
++            <rect x="5" y="11" width="14" height="10" rx="2" stroke="#7a7a7a" strokeWidth="1.8" />
++            <path d="M8 11V7a4 4 0 018 0v4" stroke="#7a7a7a" strokeWidth="1.8" strokeLinecap="round" />
++          </svg>
++          <p className="type-caption text-ink-48">
++            Sensitive location details are not shown here. Contact your school administrator for a full event report.
++          </p>
++        </div>
++      </div>
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/HistoryScreen.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/HistoryScreen.tsx
+new file mode 100644
+index 0000000..06e8c3c
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/HistoryScreen.tsx
+@@ -0,0 +1,78 @@
++"use client";
++
++import { useRouter } from 'next/navigation';
++import { AppHeader, StatusBadge, SOS_SCREEN } from './ui';
++import { useSosHistory } from './useSosHistory';
++import type { SosEventStatus } from './types';
++
++const STATUS_MAP: Record<SosEventStatus, { variant: 'resolved' | 'cancelled' | 'active'; label: string }> = {
++  resolved: { variant: 'resolved', label: 'Resolved' },
++  cancelled: { variant: 'cancelled', label: 'Cancelled' },
++  active: { variant: 'active', label: 'Active' },
++};
++
++export default function HistoryScreen() {
++  const router = useRouter();
++  const { events } = useSosHistory();
++
++  return (
++    <div className={SOS_SCREEN} style={{ background: '#f5f5f7' }}>
++      <AppHeader
++        title="SOS HISTORY"
++        subtitle="Your previous safety events, visible only to you."
++      />
++
++      <div style={{ padding: '24px 24px 0' }}>
++        {events.length === 0 ? (
++          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 64, gap: 12 }}>
++            <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#f5f5f7', border: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
++              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
++                <circle cx="12" cy="12" r="9" stroke="#7a7a7a" strokeWidth="1.8" />
++                <path d="M12 7v5l3 3" stroke="#7a7a7a" strokeWidth="2" strokeLinecap="round" />
++              </svg>
++            </div>
++            <p className="type-body text-ink-48">No SOS events recorded</p>
++          </div>
++        ) : (
++          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingBottom: 24 }}>
++            {events.map((event) => {
++              const { variant, label } = STATUS_MAP[event.status];
++              const iconColor = event.status === 'resolved' ? '#16A34A' : event.status === 'cancelled' ? '#7a7a7a' : '#DC2626';
++              return (
++                <button
++                  key={event.id}
++                  onClick={() => router.push(`/dashboard/sos/history/${event.id}`)}
++                  className="w-full text-left bg-canvas border border-hairline transition-opacity active:opacity-70"
++                  style={{ borderRadius: 18, padding: 20, display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer' }}
++                >
++                  <div style={{ width: 40, height: 40, borderRadius: 11, background: '#f5f5f7', border: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
++                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
++                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={iconColor} strokeWidth="1.8" strokeLinejoin="round" />
++                    </svg>
++                  </div>
++
++                  <div style={{ flex: 1, minWidth: 0 }}>
++                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
++                      <p className="type-body-strong text-ink">SOS Event</p>
++                      <StatusBadge variant={variant} label={label} />
++                    </div>
++                    <p className="type-caption text-ink-48">
++                      {event.date} · {event.time}
++                    </p>
++                    {event.duration && (
++                      <p className="type-caption text-ink-48 mt-[2px]">Duration: {event.duration}</p>
++                    )}
++                  </div>
++
++                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
++                    <path d="M9 18l6-6-6-6" stroke="#7a7a7a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
++                  </svg>
++                </button>
++              );
++            })}
++          </div>
++        )}
++      </div>
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/LocationPrivacyScreen.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/LocationPrivacyScreen.tsx
+new file mode 100644
+index 0000000..4253b3c
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/LocationPrivacyScreen.tsx
+@@ -0,0 +1,66 @@
++"use client";
++
++import { useRouter } from 'next/navigation';
++import { AppHeader, Card, SOS_SCREEN } from './ui';
++
++const FAQ_ITEMS = [
++  {
++    q: 'When is my location shared?',
++    a: 'Your location is shared only when: (1) you activate SOS, or (2) you manually enable location sharing through an approved safety feature. There is no background tracking.',
++  },
++  {
++    q: 'Who can see my location?',
++    a: 'Only authorized school responders can access your location data during an active SOS event. Your location is not visible to other students or unauthorized staff.',
++  },
++  {
++    q: 'How long is location data kept?',
++    a: 'Location data is retained only for the duration of an active SOS event. After the event is resolved or cancelled, active sharing stops immediately.',
++  },
++  {
++    q: 'Can I stop sharing at any time?',
++    a: 'Yes. You can cancel SOS or disable manual location sharing at any time through this screen or from the active SOS screen.',
++  },
++];
++
++export default function LocationPrivacyScreen() {
++  const router = useRouter();
++
++  return (
++    <div className={SOS_SCREEN} style={{ background: '#f5f5f7' }}>
++      <AppHeader title="YOUR PRIVACY" onBack={() => router.push('/dashboard/sos/location')} />
++
++      <div style={{ padding: '24px 24px 0' }}>
++
++        {/* Key statement */}
++        <div style={{ background: '#f5f5f7', border: '1px solid #e0e0e0', borderRadius: 18, padding: 24, marginBottom: 17 }}>
++          <div style={{ width: 40, height: 40, borderRadius: 11, background: '#ffffff', border: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
++            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
++              <rect x="5" y="11" width="14" height="10" rx="2" stroke="#0066cc" strokeWidth="1.8" />
++              <path d="M8 11V7a4 4 0 018 0v4" stroke="#0066cc" strokeWidth="1.8" strokeLinecap="round" />
++            </svg>
++          </div>
++          <p className="type-tagline text-ink mb-[8px]">Location is not continuously tracked.</p>
++          <p className="type-body text-ink-48">
++            Location sharing is activated only when required by an SOS event or when you explicitly enable an approved safety feature.
++          </p>
++        </div>
++
++        {/* FAQ cards */}
++        {FAQ_ITEMS.map((item) => (
++          <Card key={item.q} className="mb-[8px]">
++            <p className="type-body-strong text-ink mb-[6px]">{item.q}</p>
++            <p className="type-body text-ink-48">{item.a}</p>
++          </Card>
++        ))}
++
++        <p className="type-caption text-ink-48 mb-[24px]" style={{ padding: '0 4px' }}>
++          For the full privacy policy, contact your school administrator or visit the Sukuna Privacy Policy in your school portal.{' '}
++          <button className="transition-opacity active:opacity-60" style={{ color: '#0066cc', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-text)', fontSize: 14, letterSpacing: '-0.224px', textDecoration: 'underline', textUnderlineOffset: 2 }}>
++            Learn more
++          </button>
++        </p>
++
++      </div>
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/LocationScreen.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/LocationScreen.tsx
+new file mode 100644
+index 0000000..972240f
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/LocationScreen.tsx
+@@ -0,0 +1,101 @@
++"use client";
++
++import { useRouter } from 'next/navigation';
++import { AppHeader, Card, InfoRow, MapPlaceholder, StatusBadge, PrimaryButton, SectionLabel, SOS_SCREEN } from './ui';
++import { useSosSession } from './SosSessionContext';
++import { formatClockTime } from './utils';
++
++export default function LocationScreen() {
++  const router = useRouter();
++  const { locationSharing: active, locationUpdatedAt, toggleManualLocationSharing } = useSosSession();
++
++  return (
++    <div className={SOS_SCREEN} style={{ background: '#f5f5f7' }}>
++      <AppHeader
++        title="LOCATION SHARING"
++        subtitle={active ? 'Sharing is currently active.' : 'Location sharing is off.'}
++      />
++
++      <div style={{ padding: '24px 24px 0' }}>
++
++        {/* Status card */}
++        <div
++          style={{
++            background: active ? '#FEF2F2' : '#ffffff',
++            border: `1px solid ${active ? '#FECACA' : '#e0e0e0'}`,
++            borderRadius: 18,
++            padding: 24,
++            marginBottom: 17,
++            transition: 'background 0.2s, border-color 0.2s',
++          }}
++        >
++          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
++            <div>
++              <p className="type-caption text-ink-48 mb-[4px]">Location Status</p>
++              <p className="type-tagline" style={{ color: active ? '#DC2626' : '#1d1d1f' }}>
++                {active ? 'Sharing Active' : 'Not Sharing'}
++              </p>
++            </div>
++            <StatusBadge variant={active ? 'active' : 'cancelled'} label={active ? 'Active' : 'Off'} />
++          </div>
++
++          <p className="type-body text-ink-48 mb-[20px]">
++            {active
++              ? 'Your location is currently being shared with authorized school responders.'
++              : 'Your location is only shared when you activate SOS or explicitly enable an approved safety feature.'}
++          </p>
++
++          <PrimaryButton fullWidth destructive={active} onClick={toggleManualLocationSharing}>
++            {active ? 'Stop Sharing' : 'Enable Location Sharing'}
++          </PrimaryButton>
++        </div>
++
++        {/* Map — active only */}
++        {active && (
++          <Card className="mb-[17px] slide-up">
++            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
++              <SectionLabel>Your Location</SectionLabel>
++              <StatusBadge variant="active" label="Live" />
++            </div>
++            <MapPlaceholder active />
++            <div style={{ marginTop: 12 }}>
++              <InfoRow label="Last updated" value={locationUpdatedAt ? formatClockTime(locationUpdatedAt) : '—'} />
++              <InfoRow label="Shared with" value="Authorized responders only" accent />
++            </div>
++          </Card>
++        )}
++
++        {/* When location is shared */}
++        <Card className="mb-[17px]">
++          <SectionLabel>When location is shared</SectionLabel>
++          <InfoRow label="During active SOS" value="Automatically shared" />
++          <InfoRow label="Manual share" value={active ? 'Currently enabled' : 'Not enabled'} accent={active} />
++          <InfoRow label="Background tracking" value="Never" />
++          <InfoRow label="Visible to students" value="Never" />
++        </Card>
++
++        {/* Privacy info link */}
++        <button
++          onClick={() => router.push('/dashboard/sos/location/privacy')}
++          className="w-full text-left bg-canvas border border-hairline transition-opacity active:opacity-70 mb-[24px]"
++          style={{ borderRadius: 18, padding: 20, display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer' }}
++        >
++          <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f5f5f7', border: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
++            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
++              <rect x="5" y="11" width="14" height="10" rx="2" stroke="#0066cc" strokeWidth="1.8" />
++              <path d="M8 11V7a4 4 0 018 0v4" stroke="#0066cc" strokeWidth="1.8" strokeLinecap="round" />
++            </svg>
++          </div>
++          <div style={{ flex: 1 }}>
++            <p className="type-body-strong text-ink">Privacy Information</p>
++            <p className="type-caption text-ink-48 mt-[2px]">How your location data is used and protected</p>
++          </div>
++          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
++            <path d="M9 18l6-6-6-6" stroke="#7a7a7a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
++          </svg>
++        </button>
++
++      </div>
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/MainScreen.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/MainScreen.tsx
+new file mode 100644
+index 0000000..d4b32e1
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/MainScreen.tsx
+@@ -0,0 +1,222 @@
++"use client";
++
++import { useRouter } from 'next/navigation';
++import SOSButton from './SOSButton';
++import { Card, InfoRow, SectionLabel, SOS_SCREEN } from './ui';
++import { useSosSession } from './SosSessionContext';
++import { formatCheckInLabel } from './utils';
++
++function CountdownOverlay({ countdown, onCancel }: { countdown: number; onCancel: () => void }) {
++  return (
++    <div
++      className="fixed inset-0 z-50 flex flex-col items-center justify-center px-[24px] fade-in"
++      style={{ background: '#DC2626' }}
++    >
++      <p
++        className="type-caption text-center mb-[32px]"
++        style={{ color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.12em' }}
++      >
++        SOS will activate shortly
++      </p>
++
++      <div
++        key={countdown}
++        className="countdown-number"
++        style={{
++          fontFamily: 'var(--font-display)',
++          fontSize: 128,
++          fontWeight: 600,
++          lineHeight: 1,
++          color: '#ffffff',
++          letterSpacing: '-2px',
++        }}
++        aria-live="assertive"
++        aria-label={`${countdown} seconds until SOS activates`}
++      >
++        {countdown}
++      </div>
++
++      <p className="type-body text-center mt-[24px] mb-[48px]" style={{ color: 'rgba(255,255,255,0.75)', maxWidth: 280 }}>
++        Sending your emergency alert to authorized responders.
++      </p>
++
++      <button
++        onClick={onCancel}
++        className="transition-transform active:scale-95"
++        style={{
++          background: '#ffffff',
++          color: '#DC2626',
++          borderRadius: 9999,
++          padding: '11px 48px',
++          fontFamily: 'var(--font-text)',
++          fontSize: 17,
++          fontWeight: 600,
++          letterSpacing: '-0.374px',
++          minHeight: 44,
++          minWidth: 200,
++        }}
++        aria-label="Cancel SOS activation"
++      >
++        Cancel
++      </button>
++    </div>
++  );
++}
++
++const QUICK_ACTIONS = [
++  { label: 'Share Location', href: '/dashboard/sos/location', iconPath: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z' },
++  { label: 'Safety Check', href: '/dashboard/sos/safety', iconPath: 'M20 6L9 17L4 12' },
++  { label: 'SOS History', href: '/dashboard/sos/history', iconPath: 'M12 7v5l3 3M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z' },
++];
++
++export default function MainScreen() {
++  const router = useRouter();
++  const {
++    sosState, holdProgress, countdown,
++    startHold, cancelHold, cancelCountdown,
++    locationSharing, lastSafetyCheckAt,
++  } = useSosSession();
++
++  const isHolding = sosState === 'holding';
++
++  return (
++    <div className={`relative bg-parchment ${SOS_SCREEN}`}>
++
++      {/* Header */}
++      <div className="bg-canvas border-b border-hairline flex-shrink-0" style={{ padding: '24px 24px 20px' }}>
++        <div className="flex items-center gap-[8px] mb-[4px]">
++          <div style={{ width: 28, height: 28, borderRadius: 8, background: '#0066cc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
++            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
++              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="white" strokeWidth="2.2" strokeLinejoin="round" />
++            </svg>
++          </div>
++          <h1 className="type-tagline text-ink">SOS & SAFETY</h1>
++        </div>
++        <p className="type-body text-ink-48">
++          Quick access to safety assistance when you need it.
++        </p>
++      </div>
++
++      <div style={{ padding: '24px 24px 0' }}>
++
++        {/* Primary SOS action card */}
++        <div
++          className="bg-canvas"
++          style={{
++            borderRadius: 18,
++            border: `1px solid ${isHolding ? '#FECACA' : '#e0e0e0'}`,
++            marginBottom: 17,
++            transition: 'border-color 0.2s',
++          }}
++        >
++          <div style={{ padding: '24px 24px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
++            <div>
++              <p className="type-body-strong text-ink">SOS</p>
++              <p className="type-caption text-ink-48">Request Immediate Help</p>
++            </div>
++            <span
++              style={{
++                fontFamily: 'var(--font-text)',
++                fontSize: 11,
++                fontWeight: 600,
++                letterSpacing: '0.06em',
++                textTransform: 'uppercase' as const,
++                color: isHolding ? '#DC2626' : '#7a7a7a',
++                padding: '3px 10px',
++                border: `1px solid ${isHolding ? '#FECACA' : '#e0e0e0'}`,
++                borderRadius: 9999,
++                flexShrink: 0,
++              }}
++            >
++              {isHolding ? 'ACTIVATING' : 'READY'}
++            </span>
++          </div>
++
++          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 24px 20px', gap: 16 }}>
++            <SOSButton
++              sosState={sosState}
++              holdProgress={holdProgress}
++              onHoldStart={startHold}
++              onHoldEnd={cancelHold}
++            />
++
++            {isHolding && (
++              <div style={{ width: '100%', maxWidth: 200 }} className="slide-up">
++                <div style={{ height: 3, background: '#FECACA', borderRadius: 9999, overflow: 'hidden' }}>
++                  <div
++                    style={{
++                      height: '100%',
++                      background: '#DC2626',
++                      borderRadius: 9999,
++                      width: `${holdProgress * 100}%`,
++                      transition: 'width 0.05s linear',
++                    }}
++                  />
++                </div>
++              </div>
++            )}
++
++            {!isHolding && (
++              <p className="type-caption text-center text-ink-48">
++                Hold the button for 2.5 seconds to activate
++              </p>
++            )}
++          </div>
++        </div>
++
++        {/* Safety status */}
++        <Card className="mb-[17px]">
++          <SectionLabel>Safety Status</SectionLabel>
++          <InfoRow label="Status" value="No active SOS" />
++          <InfoRow label="Location" value={locationSharing ? 'Currently shared' : 'Not currently shared'} />
++          <InfoRow label="Last check-in" value={formatCheckInLabel(lastSafetyCheckAt)} />
++        </Card>
++
++        {/* Quick actions */}
++        <div style={{ marginBottom: 24 }}>
++          <SectionLabel>Quick Actions</SectionLabel>
++          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 17 }}>
++            {QUICK_ACTIONS.map((action) => (
++              <button
++                key={action.label}
++                onClick={() => router.push(action.href)}
++                className="flex flex-col items-center text-center transition-opacity active:opacity-60"
++                style={{
++                  background: '#ffffff',
++                  border: '1px solid #e0e0e0',
++                  borderRadius: 18,
++                  padding: 16,
++                  gap: 8,
++                  cursor: 'pointer',
++                }}
++              >
++                <div style={{ width: 40, height: 40, borderRadius: 11, background: '#f5f5f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
++                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
++                    <path d={action.iconPath} stroke="#0066cc" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
++                  </svg>
++                </div>
++                <span className="type-caption-strong text-ink">{action.label}</span>
++              </button>
++            ))}
++          </div>
++        </div>
++
++        {/* Privacy notice */}
++        <div
++          style={{ background: '#f5f5f7', borderRadius: 11, padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 24 }}
++        >
++          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
++            <rect x="5" y="11" width="14" height="10" rx="2" stroke="#7a7a7a" strokeWidth="1.8" />
++            <path d="M8 11V7a4 4 0 018 0v4" stroke="#7a7a7a" strokeWidth="1.8" strokeLinecap="round" />
++          </svg>
++          <p className="type-caption text-ink-48">
++            Your location is not continuously tracked. Sharing is activated only during an active SOS event or when you explicitly enable it.
++          </p>
++        </div>
++
++      </div>
++
++      {sosState === 'countdown' && <CountdownOverlay countdown={countdown} onCancel={cancelCountdown} />}
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/SOSActiveScreen.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/SOSActiveScreen.tsx
+new file mode 100644
+index 0000000..322773a
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/SOSActiveScreen.tsx
+@@ -0,0 +1,137 @@
++"use client";
++
++import { Card, InfoRow, MapPlaceholder, ResponderTimeline, StatusBadge, ConfirmationModal, PrimaryButton, SectionLabel, SOS_SCREEN } from './ui';
++import { useSosSession } from './SosSessionContext';
++import { formatClockTime } from './utils';
++import type { ResponderTimelineStep } from './types';
++
++const TIMELINE_STEPS: Record<'active' | 'ack' | 'assistance', ResponderTimelineStep[]> = {
++  active: [
++    { label: 'SOS Activated', sublabel: 'Alert sent', done: true },
++    { label: 'Responder Notified', sublabel: 'Awaiting acknowledgement', done: false, active: true },
++    { label: 'Acknowledged', sublabel: 'Waiting', done: false },
++    { label: 'Assistance', sublabel: 'Pending', done: false },
++    { label: 'Resolved', sublabel: 'Not started', done: false },
++  ],
++  ack: [
++    { label: 'SOS Activated', sublabel: 'Alert sent', done: true },
++    { label: 'Responder Notified', sublabel: 'Responder notified', done: true },
++    { label: 'Acknowledged', sublabel: 'Responder acknowledged', done: true },
++    { label: 'Assistance', sublabel: 'In progress', done: false, active: true },
++    { label: 'Resolved', sublabel: 'Not started', done: false },
++  ],
++  assistance: [
++    { label: 'SOS Activated', sublabel: 'Alert sent', done: true },
++    { label: 'Responder Notified', sublabel: 'Responder notified', done: true },
++    { label: 'Acknowledged', sublabel: 'Responder acknowledged', done: true },
++    { label: 'Assistance', sublabel: 'Assistance in progress', done: true },
++    { label: 'Resolved', sublabel: 'Pending', done: false, active: true },
++  ],
++};
++
++export default function SOSActiveScreen() {
++  const {
++    sosState, showCancelModal, startedAt, locationUpdatedAt,
++    requestCancel, confirmCancel, dismissCancel, refreshLocationUpdatedAt,
++  } = useSosSession();
++
++  const steps = TIMELINE_STEPS[sosState as 'active' | 'ack' | 'assistance'] ?? TIMELINE_STEPS.active;
++
++  const stateLabel =
++    sosState === 'ack' ? 'ACKNOWLEDGED'
++    : sosState === 'assistance' ? 'ASSISTANCE IN PROGRESS'
++    : 'SOS ACTIVE';
++
++  return (
++    <div className={SOS_SCREEN} style={{ background: '#f5f5f7' }}>
++
++      {/* Emergency header */}
++      <div className="flex-shrink-0" style={{ background: '#DC2626', padding: '20px 24px 24px' }}>
++        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
++          <span style={{ fontFamily: 'var(--font-text)', fontSize: 11, fontWeight: 600, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase' as const }}>
++            {stateLabel}
++          </span>
++          <StatusBadge variant="active" label="LIVE" />
++        </div>
++        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 600, lineHeight: 1.14, letterSpacing: '0.196px', color: '#ffffff' }}>
++          Your safety alert has been sent to authorized responders.
++        </h1>
++        <p className="type-caption mt-[8px]" style={{ color: 'rgba(255,255,255,0.65)' }}>
++          {startedAt ? `Started ${formatClockTime(startedAt)}` : 'Starting…'}
++        </p>
++      </div>
++
++      <div style={{ padding: '24px 24px 0' }}>
++
++        {/* Status tiles — 3 columns */}
++        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 17 }}>
++          {[
++            { label: 'ALERT', value: 'Sent', color: '#DC2626' },
++            { label: 'LOCATION', value: 'Sharing', color: '#0066cc' },
++            {
++              label: 'STATUS',
++              value: sosState === 'ack' ? 'Acknowledged' : sosState === 'assistance' ? 'In Progress' : 'Waiting',
++              color: sosState === 'assistance' ? '#16A34A' : sosState === 'ack' ? '#0066cc' : '#D97706',
++            },
++          ].map((item) => (
++            <div
++              key={item.label}
++              className="bg-canvas border border-hairline text-center"
++              style={{ borderRadius: 11, padding: '12px 8px' }}
++            >
++              <p style={{ fontFamily: 'var(--font-text)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', color: '#7a7a7a', textTransform: 'uppercase' as const, marginBottom: 4 }}>
++                {item.label}
++              </p>
++              <p style={{ fontFamily: 'var(--font-text)', fontSize: 14, fontWeight: 600, letterSpacing: '-0.224px', color: item.color }}>
++                {item.value}
++              </p>
++            </div>
++          ))}
++        </div>
++
++        {/* Desktop: map + timeline side by side */}
++        <div className="grid grid-cols-1 min-[834px]:grid-cols-2 gap-[17px] mb-[17px]">
++
++          {/* Location card */}
++          <Card>
++            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
++              <SectionLabel>Your Location</SectionLabel>
++              <StatusBadge variant="active" label="Active" />
++            </div>
++            <MapPlaceholder active />
++            <div style={{ marginTop: 12 }}>
++              <InfoRow label="Last updated" value={locationUpdatedAt ? formatClockTime(locationUpdatedAt) : '—'} />
++              <InfoRow label="Location sharing" value="Active during SOS" accent />
++            </div>
++          </Card>
++
++          {/* Responder timeline */}
++          <Card>
++            <SectionLabel>Responder Status</SectionLabel>
++            <ResponderTimeline steps={steps} />
++          </Card>
++
++        </div>
++
++        {/* Actions */}
++        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 24 }}>
++          <PrimaryButton fullWidth onClick={refreshLocationUpdatedAt}>Update Location</PrimaryButton>
++          <PrimaryButton fullWidth ghost destructive onClick={requestCancel}>Cancel SOS</PrimaryButton>
++        </div>
++
++      </div>
++
++      {showCancelModal && (
++        <ConfirmationModal
++          title="Cancel SOS?"
++          body="This will notify authorized responders that the emergency alert has been cancelled. Only cancel if the situation is no longer an emergency."
++          cancelLabel="Keep SOS Active"
++          confirmLabel="Cancel SOS"
++          confirmDestructive
++          onCancel={dismissCancel}
++          onConfirm={confirmCancel}
++        />
++      )}
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/SOSButton.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/SOSButton.tsx
+new file mode 100644
+index 0000000..6a9bd4c
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/SOSButton.tsx
+@@ -0,0 +1,142 @@
++"use client";
++
++import { useCallback, useRef } from 'react';
++import type { SosState } from './types';
++
++const OUTER_R = 72;
++const INNER_R = 58;
++const CIRCUMFERENCE = 2 * Math.PI * INNER_R;
++const SVG_SIZE = (OUTER_R + 4) * 2;
++const CENTER = SVG_SIZE / 2;
++
++interface SOSButtonProps {
++  sosState: SosState;
++  holdProgress: number;
++  onHoldStart: () => void;
++  onHoldEnd: () => void;
++}
++
++export default function SOSButton({ sosState, holdProgress, onHoldStart, onHoldEnd }: SOSButtonProps) {
++  const isIdle = sosState === 'idle';
++  const isHolding = sosState === 'holding';
++  const isActive = sosState === 'active' || sosState === 'ack' || sosState === 'assistance';
++  const isResolved = sosState === 'resolved';
++
++  const pointerDownRef = useRef(false);
++  const strokeDashoffset = CIRCUMFERENCE * (1 - holdProgress);
++
++  const handlePointerDown = useCallback((e: React.PointerEvent) => {
++    e.preventDefault();
++    if (!isIdle) return;
++    pointerDownRef.current = true;
++    (e.target as HTMLElement).setPointerCapture(e.pointerId);
++    onHoldStart();
++  }, [isIdle, onHoldStart]);
++
++  const handlePointerUp = useCallback(() => {
++    if (!pointerDownRef.current) return;
++    pointerDownRef.current = false;
++    onHoldEnd();
++  }, [onHoldEnd]);
++
++  const btnBg = isActive
++    ? '#991B1B'
++    : isResolved
++      ? '#e0e0e0'
++      : isHolding
++        ? '#B91C1C'
++        : '#DC2626';
++
++  const btnLabel = isIdle ? 'Hold to activate'
++    : isHolding ? 'Keep holding…'
++    : isActive ? 'Active'
++    : isResolved ? 'Resolved'
++    : '';
++
++  return (
++    <div className="relative flex items-center justify-center select-none" style={{ width: SVG_SIZE, height: SVG_SIZE }}>
++      {isIdle && (
++        <div
++          className="sos-ring-pulse absolute inset-0 rounded-full"
++          style={{ background: 'rgba(220, 38, 38, 0.1)' }}
++          aria-hidden="true"
++        />
++      )}
++
++      <svg
++        className="absolute inset-0"
++        width={SVG_SIZE}
++        height={SVG_SIZE}
++        style={{ transform: 'rotate(-90deg)', pointerEvents: 'none' }}
++        aria-hidden="true"
++      >
++        {(isHolding || holdProgress > 0) && (
++          <circle cx={CENTER} cy={CENTER} r={INNER_R} fill="none" stroke="#FECACA" strokeWidth={4} />
++        )}
++        {holdProgress > 0 && (
++          <circle
++            cx={CENTER} cy={CENTER} r={INNER_R}
++            fill="none"
++            stroke="#DC2626"
++            strokeWidth={4}
++            strokeDasharray={CIRCUMFERENCE}
++            strokeDashoffset={strokeDashoffset}
++            strokeLinecap="round"
++            style={{ transition: 'stroke-dashoffset 0.05s linear' }}
++          />
++        )}
++      </svg>
++
++      <button
++        onPointerDown={handlePointerDown}
++        onPointerUp={handlePointerUp}
++        onPointerLeave={handlePointerUp}
++        onPointerCancel={handlePointerUp}
++        disabled={isActive || isResolved}
++        aria-label={isActive ? 'SOS is currently active' : 'Hold for 2.5 seconds to activate SOS emergency alert'}
++        className="relative z-10 flex flex-col items-center justify-center transition-transform focus-visible:outline-2 focus-visible:outline-offset-4"
++        style={{
++          width: OUTER_R * 2,
++          height: OUTER_R * 2,
++          borderRadius: '50%',
++          background: btnBg,
++          cursor: isActive || isResolved ? 'default' : 'pointer',
++          transform: isHolding ? 'scale(0.94)' : 'scale(1)',
++          transition: 'transform 0.12s ease, background 0.15s ease',
++          outlineColor: '#0071e3',
++          gap: 2,
++          touchAction: 'none',
++        }}
++      >
++        <span
++          style={{
++            fontFamily: 'var(--font-display)',
++            fontSize: 24,
++            fontWeight: 600,
++            letterSpacing: '0.12em',
++            color: isResolved ? '#7a7a7a' : '#ffffff',
++            lineHeight: 1,
++          }}
++        >
++          SOS
++        </span>
++        {btnLabel && (
++          <span
++            style={{
++              fontFamily: 'var(--font-text)',
++              fontSize: 10,
++              fontWeight: 400,
++              letterSpacing: '-0.08px',
++              color: isResolved ? '#7a7a7a' : 'rgba(255,255,255,0.75)',
++              lineHeight: 1.2,
++              textAlign: 'center',
++              maxWidth: 80,
++            }}
++          >
++            {btnLabel}
++          </span>
++        )}
++      </button>
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/SOSResolvedScreen.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/SOSResolvedScreen.tsx
+new file mode 100644
+index 0000000..1190d52
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/SOSResolvedScreen.tsx
+@@ -0,0 +1,70 @@
++"use client";
++
++import { Card, InfoRow, PrimaryButton, SOS_SCREEN } from './ui';
++import { useSosSession } from './SosSessionContext';
++import { formatClockTime, formatDuration } from './utils';
++
++export default function SOSResolvedScreen() {
++  const { startedAt, resolvedAt, backToSafetyFromResolved } = useSosSession();
++
++  return (
++    <div className={SOS_SCREEN} style={{ background: '#f5f5f7' }}>
++
++      {/* Header */}
++      <div className="bg-canvas border-b border-hairline flex-shrink-0" style={{ padding: '32px 24px 24px' }}>
++        <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#F0FDF4', border: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
++          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
++            <path d="M20 6L9 17L4 12" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
++          </svg>
++        </div>
++        <h1 className="type-display-md text-ink">SOS RESOLVED</h1>
++        <p className="type-body mt-[8px] text-ink-48">
++          Your SOS event has been marked as resolved.
++        </p>
++      </div>
++
++      <div style={{ padding: '24px 24px 0' }}>
++
++        {/* Event summary */}
++        <Card className="mb-[17px]">
++          <p className="type-caption text-ink-48 mb-[12px]">Event Summary</p>
++          <InfoRow label="Started" value={startedAt ? formatClockTime(startedAt) : '—'} />
++          <InfoRow label="Resolved" value={resolvedAt ? formatClockTime(resolvedAt) : '—'} />
++          <InfoRow label="Duration" value={startedAt && resolvedAt ? formatDuration(startedAt, resolvedAt) : '—'} />
++          <InfoRow label="Location sharing" value="Stopped" />
++          <InfoRow label="Responder" value="Acknowledged & Responded" accent />
++        </Card>
++
++        {/* All clear */}
++        <div style={{ background: '#F0FDF4', border: '1px solid #e0e0e0', borderRadius: 18, padding: 24, marginBottom: 17 }}>
++          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
++            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(22,163,74,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
++              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
++                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#16A34A" strokeWidth="2" strokeLinejoin="round" />
++                <path d="M9 12l2 2 4-4" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
++              </svg>
++            </div>
++            <p className="type-body-strong" style={{ color: '#15803D' }}>All Clear</p>
++          </div>
++          <p className="type-body" style={{ color: '#16A34A', lineHeight: 1.47 }}>
++            Your SOS event is closed. Your location is no longer being shared. If you need assistance again, you can activate a new SOS at any time.
++          </p>
++        </div>
++
++        {/* Privacy confirmation */}
++        <div style={{ background: '#f5f5f7', borderRadius: 11, padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 24 }}>
++          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
++            <rect x="5" y="11" width="14" height="10" rx="2" stroke="#7a7a7a" strokeWidth="1.8" />
++            <path d="M8 11V7a4 4 0 018 0v4" stroke="#7a7a7a" strokeWidth="1.8" strokeLinecap="round" />
++          </svg>
++          <p className="type-caption text-ink-48">
++            Location sharing has been automatically stopped. Your location data is no longer accessible to responders.
++          </p>
++        </div>
++
++        <PrimaryButton fullWidth onClick={backToSafetyFromResolved}>Back to Safety</PrimaryButton>
++
++      </div>
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/SafetyCheckScreen.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/SafetyCheckScreen.tsx
+new file mode 100644
+index 0000000..859a792
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/SafetyCheckScreen.tsx
+@@ -0,0 +1,125 @@
++"use client";
++
++import { useState } from 'react';
++import { AppHeader, Card, PrimaryButton, SOS_SCREEN } from './ui';
++import { useSosSession } from './SosSessionContext';
++
++export default function SafetyCheckScreen() {
++  const { markSafetyCheckSent } = useSosSession();
++  const [justSent, setJustSent] = useState(false);
++
++  if (justSent) {
++    return (
++      <div className={SOS_SCREEN} style={{ background: '#f5f5f7' }}>
++        <AppHeader title="SAFETY CHECK" />
++
++        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 24px 24px' }}>
++          <div
++            className="slide-up"
++            style={{ width: 72, height: 72, borderRadius: '50%', background: '#F0FDF4', border: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}
++          >
++            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
++              <path d="M20 6L9 17L4 12" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
++            </svg>
++          </div>
++
++          <h2 className="type-display-md text-ink text-center slide-up" style={{ marginBottom: 8 }}>
++            Safety Check Sent
++          </h2>
++          <p className="type-body text-ink-48 text-center slide-up" style={{ maxWidth: 280, marginBottom: 32 }}>
++            Your safety status has been updated. Authorized contacts have been notified that you are safe.
++          </p>
++
++          <div
++            className="w-full slide-up"
++            style={{ background: '#F0FDF4', border: '1px solid #e0e0e0', borderRadius: 18, padding: 20, marginBottom: 32 }}
++          >
++            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
++              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(22,163,74,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
++                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
++                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#16A34A" strokeWidth="2" strokeLinejoin="round" />
++                  <path d="M9 12l2 2 4-4" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
++                </svg>
++              </div>
++              <div>
++                <p className="type-body-strong" style={{ color: '#15803D' }}>You are marked safe</p>
++                <p className="type-caption" style={{ color: '#16A34A', marginTop: 2 }}>Just now</p>
++              </div>
++            </div>
++          </div>
++
++          <PrimaryButton fullWidth onClick={() => setJustSent(false)}>Done</PrimaryButton>
++        </div>
++      </div>
++    );
++  }
++
++  return (
++    <div className={SOS_SCREEN} style={{ background: '#f5f5f7' }}>
++      <AppHeader
++        title="SAFETY CHECK"
++        subtitle="Let authorized contacts know that you are safe."
++      />
++
++      <div style={{ padding: '24px 24px 0' }}>
++
++        {/* Explainer card */}
++        <Card className="mb-[17px]">
++          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
++            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f5f5f7', border: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
++              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
++                <circle cx="12" cy="12" r="9" stroke="#0066cc" strokeWidth="1.8" />
++                <path d="M12 8v4M12 16h.01" stroke="#0066cc" strokeWidth="2" strokeLinecap="round" />
++              </svg>
++            </div>
++            <div>
++              <p className="type-body-strong text-ink mb-[4px]">What is a Safety Check?</p>
++              <p className="type-body text-ink-48">
++                A Safety Check lets you confirm your wellbeing to authorized school contacts. This is separate from SOS — it tells them you are safe, not that you need help.
++              </p>
++            </div>
++          </div>
++        </Card>
++
++        <p className="type-fine text-ink-48 text-center mb-[24px]" style={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>
++          Different from SOS
++        </p>
++
++        {/* I'm Safe button */}
++        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 24 }}>
++          <button
++            onClick={() => { markSafetyCheckSent(); setJustSent(true); }}
++            className="transition-transform active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4"
++            style={{
++              width: 136, height: 136, borderRadius: '50%',
++              background: '#F0FDF4', border: '2px solid #e0e0e0',
++              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
++              gap: 6, cursor: 'pointer', outlineColor: '#0071e3',
++            }}
++            aria-label="I am safe — send safety check"
++          >
++            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
++              <path d="M20 6L9 17L4 12" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
++            </svg>
++            <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 600, letterSpacing: '0.08em', color: '#15803D', lineHeight: 1 }}>
++              {"I'M SAFE"}
++            </span>
++          </button>
++          <p className="type-caption text-ink-48 text-center">Tap to send your safety confirmation</p>
++        </div>
++
++        {/* Privacy note */}
++        <div style={{ background: '#f5f5f7', borderRadius: 11, padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 24 }}>
++          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
++            <rect x="5" y="11" width="14" height="10" rx="2" stroke="#7a7a7a" strokeWidth="1.8" />
++            <path d="M8 11V7a4 4 0 018 0v4" stroke="#7a7a7a" strokeWidth="1.8" strokeLinecap="round" />
++          </svg>
++          <p className="type-caption text-ink-48">
++            A Safety Check does not share your location. It only sends a status notification to authorized contacts.
++          </p>
++        </div>
++
++      </div>
++    </div>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/SosHomeScreen.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/SosHomeScreen.tsx
+new file mode 100644
+index 0000000..a52792a
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/SosHomeScreen.tsx
+@@ -0,0 +1,18 @@
++"use client";
++
++import MainScreen from './MainScreen';
++import SOSActiveScreen from './SOSActiveScreen';
++import SOSResolvedScreen from './SOSResolvedScreen';
++import { useSosSession } from './SosSessionContext';
++
++export default function SosHomeScreen() {
++  const { sosState } = useSosSession();
++
++  if (sosState === 'active' || sosState === 'ack' || sosState === 'assistance') {
++    return <SOSActiveScreen />;
++  }
++  if (sosState === 'resolved') {
++    return <SOSResolvedScreen />;
++  }
++  return <MainScreen />;
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/SosNav.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/SosNav.tsx
+new file mode 100644
+index 0000000..d3d96e6
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/SosNav.tsx
+@@ -0,0 +1,96 @@
++"use client";
++
++import Link from 'next/link';
++import { usePathname } from 'next/navigation';
++import { useSosSession } from './SosSessionContext';
++
++const NAV_ITEMS: { href: string; label: string; icon: (color: string) => React.ReactNode }[] = [
++  {
++    href: '/dashboard/sos',
++    label: 'SOS',
++    icon: (color) => (
++      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
++        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={color} strokeWidth="1.8" strokeLinejoin="round" />
++        <path d="M12 8v4M12 16h.01" stroke={color} strokeWidth="2" strokeLinecap="round" />
++      </svg>
++    ),
++  },
++  {
++    href: '/dashboard/sos/history',
++    label: 'History',
++    icon: (color) => (
++      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
++        <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.8" />
++        <path d="M12 7v5l3 3" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
++      </svg>
++    ),
++  },
++  {
++    href: '/dashboard/sos/safety',
++    label: 'Safety Check',
++    icon: (color) => (
++      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
++        <path d="M20 6L9 17L4 12" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
++      </svg>
++    ),
++  },
++  {
++    href: '/dashboard/sos/location',
++    label: 'Location',
++    icon: (color) => (
++      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
++        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke={color} strokeWidth="1.8" strokeLinejoin="round" />
++        <circle cx="12" cy="9" r="2.5" stroke={color} strokeWidth="1.6" />
++      </svg>
++    ),
++  },
++];
++
++export default function SosNav() {
++  const pathname = usePathname();
++  const { sosState } = useSosSession();
++  const isSosLive = sosState === 'active' || sosState === 'ack' || sosState === 'assistance';
++
++  return (
++    <nav
++      aria-label="SOS & Safety sections"
++      className="sticky top-0 z-10 flex-shrink-0 flex overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
++      style={{ background: '#ffffff', borderBottom: '1px solid #e0e0e0', padding: '0 8px' }}
++    >
++      {NAV_ITEMS.map((item) => {
++        const isActive = item.href === '/dashboard/sos'
++          ? pathname === '/dashboard/sos'
++          : pathname.startsWith(item.href);
++        const color = isActive ? '#0066cc' : '#7a7a7a';
++        const showDot = item.href === '/dashboard/sos' && isSosLive;
++
++        return (
++          <Link
++            key={item.href}
++            href={item.href}
++            className="relative flex items-center gap-[8px] flex-shrink-0 transition-opacity active:opacity-70"
++            style={{
++              padding: '14px 16px',
++              borderBottom: `2px solid ${isActive ? '#0066cc' : 'transparent'}`,
++              color,
++              minHeight: 44,
++            }}
++            aria-current={isActive ? 'page' : undefined}
++          >
++            {item.icon(color)}
++            <span className="type-caption-strong" style={{ color, whiteSpace: 'nowrap' }}>
++              {item.label}
++            </span>
++            {showDot && (
++              <span
++                className="live-dot"
++                style={{ width: 6, height: 6, borderRadius: '50%', background: '#DC2626', flexShrink: 0 }}
++                aria-label="SOS active"
++              />
++            )}
++          </Link>
++        );
++      })}
++    </nav>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/SosSessionContext.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/SosSessionContext.tsx
+new file mode 100644
+index 0000000..ec47822
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/SosSessionContext.tsx
+@@ -0,0 +1,179 @@
++"use client";
++
++import {
++  createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
++} from 'react';
++import type { SosState } from './types';
++
++const HOLD_DURATION_MS = 2500;
++
++interface SosSessionValue {
++  sosState: SosState;
++  holdProgress: number;
++  countdown: number;
++  showCancelModal: boolean;
++  startedAt: Date | null;
++  resolvedAt: Date | null;
++  /** Real timestamp for the "Last updated" label on the active-SOS location card. */
++  locationUpdatedAt: Date | null;
++  refreshLocationUpdatedAt: () => void;
++  /** True while SOS is active/ack/assistance, or the student manually enabled sharing. */
++  locationSharing: boolean;
++  /** Manual toggle from the Location screen, independent of an active SOS. */
++  manualLocationSharing: boolean;
++  lastSafetyCheckAt: Date | null;
++
++  startHold: () => void;
++  cancelHold: () => void;
++  cancelCountdown: () => void;
++  requestCancel: () => void;
++  dismissCancel: () => void;
++  confirmCancel: () => void;
++  backToSafetyFromResolved: () => void;
++  toggleManualLocationSharing: () => void;
++  markSafetyCheckSent: () => void;
++
++  // Reserved for a future responder/backend integration (e.g. driven by a
++  // websocket or polling effect). Not wired to any UI control today —
++  // a student cannot self-report these states. See project report.
++  acknowledge: () => void;
++  markAssistance: () => void;
++  resolve: () => void;
++}
++
++const SosSessionContext = createContext<SosSessionValue | null>(null);
++
++export function SosSessionProvider({ children }: { children: React.ReactNode }) {
++  const [sosState, setSosState] = useState<SosState>('idle');
++  const [holdProgress, setHoldProgress] = useState(0);
++  const [countdown, setCountdown] = useState(3);
++  const [showCancelModal, setShowCancelModal] = useState(false);
++  const [startedAt, setStartedAt] = useState<Date | null>(null);
++  const [resolvedAt, setResolvedAt] = useState<Date | null>(null);
++  const [locationUpdatedAt, setLocationUpdatedAt] = useState<Date | null>(null);
++  const [manualLocationSharing, setManualLocationSharing] = useState(false);
++  const [lastSafetyCheckAt, setLastSafetyCheckAt] = useState<Date | null>(null);
++
++  const holdTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
++  const holdStartRef = useRef<number>(0);
++
++  const startHold = useCallback(() => {
++    if (sosState !== 'idle') return;
++    holdStartRef.current = Date.now();
++    setSosState('holding');
++    holdTimerRef.current = setInterval(() => {
++      const elapsed = Date.now() - holdStartRef.current;
++      const progress = Math.min(elapsed / HOLD_DURATION_MS, 1);
++      setHoldProgress(progress);
++      if (progress >= 1) {
++        if (holdTimerRef.current) clearInterval(holdTimerRef.current);
++        holdTimerRef.current = null;
++        setHoldProgress(0);
++        setSosState('countdown');
++        setCountdown(3);
++      }
++    }, 16);
++  }, [sosState]);
++
++  const cancelHold = useCallback(() => {
++    if (sosState !== 'holding') return;
++    if (holdTimerRef.current) { clearInterval(holdTimerRef.current); holdTimerRef.current = null; }
++    setHoldProgress(0);
++    setSosState('idle');
++  }, [sosState]);
++
++  useEffect(() => {
++    if (sosState !== 'countdown') return;
++    if (countdown <= 0) {
++      const now = new Date();
++      setSosState('active');
++      setStartedAt(now);
++      setLocationUpdatedAt(now);
++      return;
++    }
++    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
++    return () => clearTimeout(t);
++  }, [sosState, countdown]);
++
++  useEffect(() => () => {
++    if (holdTimerRef.current) clearInterval(holdTimerRef.current);
++  }, []);
++
++  const cancelCountdown = useCallback(() => {
++    setSosState('idle');
++    setCountdown(3);
++  }, []);
++
++  const requestCancel = useCallback(() => setShowCancelModal(true), []);
++  const dismissCancel = useCallback(() => setShowCancelModal(false), []);
++
++  const confirmCancel = useCallback(() => {
++    setSosState('idle');
++    setShowCancelModal(false);
++    setStartedAt(null);
++    setLocationUpdatedAt(null);
++  }, []);
++
++  const backToSafetyFromResolved = useCallback(() => {
++    setSosState('idle');
++    setStartedAt(null);
++    setResolvedAt(null);
++    setLocationUpdatedAt(null);
++  }, []);
++
++  const toggleManualLocationSharing = useCallback(() => {
++    setManualLocationSharing((v) => {
++      const next = !v;
++      if (next) setLocationUpdatedAt(new Date());
++      return next;
++    });
++  }, []);
++
++  const markSafetyCheckSent = useCallback(() => {
++    setLastSafetyCheckAt(new Date());
++  }, []);
++
++  const refreshLocationUpdatedAt = useCallback(() => {
++    setLocationUpdatedAt(new Date());
++  }, []);
++
++  const acknowledge = useCallback(() => setSosState('ack'), []);
++  const markAssistance = useCallback(() => setSosState('assistance'), []);
++  const resolve = useCallback(() => {
++    setSosState('resolved');
++    setShowCancelModal(false);
++    setResolvedAt(new Date());
++  }, []);
++
++  const isSosActive = sosState === 'active' || sosState === 'ack' || sosState === 'assistance';
++
++  const value = useMemo<SosSessionValue>(() => ({
++    sosState, holdProgress, countdown, showCancelModal, startedAt, resolvedAt,
++    locationUpdatedAt, refreshLocationUpdatedAt,
++    locationSharing: isSosActive || manualLocationSharing,
++    manualLocationSharing,
++    lastSafetyCheckAt,
++    startHold, cancelHold, cancelCountdown,
++    requestCancel, dismissCancel, confirmCancel,
++    backToSafetyFromResolved, toggleManualLocationSharing, markSafetyCheckSent,
++    acknowledge, markAssistance, resolve,
++  }), [
++    sosState, holdProgress, countdown, showCancelModal, startedAt, resolvedAt,
++    locationUpdatedAt, refreshLocationUpdatedAt,
++    isSosActive, manualLocationSharing, lastSafetyCheckAt,
++    startHold, cancelHold, cancelCountdown,
++    requestCancel, dismissCancel, confirmCancel,
++    backToSafetyFromResolved, toggleManualLocationSharing, markSafetyCheckSent,
++    acknowledge, markAssistance, resolve,
++  ]);
++
++  return <SosSessionContext.Provider value={value}>{children}</SosSessionContext.Provider>;
++}
++
++export function useSosSession(): SosSessionValue {
++  const ctx = useContext(SosSessionContext);
++  if (!ctx) {
++    throw new Error('useSosSession must be used within the dashboard shell (SosSessionProvider missing — see app/dashboard/layout.tsx)');
++  }
++  return ctx;
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/types.ts b/sukuna-platform/apps/web/src/components/dashboard/sos/types.ts
+new file mode 100644
+index 0000000..ac308b6
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/types.ts
+@@ -0,0 +1,36 @@
++/**
++ * SOS & Safety — shared types.
++ *
++ * `SosState` intentionally separates "acknowledged" / "assistance" from a
++ * plain boolean so the UI can show real responder-side progress once a
++ * backend exists. Today, only `idle -> holding -> countdown -> active` and
++ * `active -> resolved` (via cancel) are reachable from the client — a
++ * student cannot self-report "acknowledged" or "assistance in progress";
++ * those transitions must come from a responder/backend integration.
++ */
++export type SosState =
++  | 'idle'
++  | 'holding'
++  | 'countdown'
++  | 'active'
++  | 'ack'
++  | 'assistance'
++  | 'resolved';
++
++export type SosEventStatus = 'resolved' | 'cancelled' | 'active';
++
++export interface SosEvent {
++  id: string;
++  date: string;
++  time: string;
++  status: SosEventStatus;
++  duration?: string;
++  resolvedTime?: string;
++}
++
++export interface ResponderTimelineStep {
++  label: string;
++  sublabel?: string;
++  done: boolean;
++  active?: boolean;
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/ui.tsx b/sukuna-platform/apps/web/src/components/dashboard/sos/ui.tsx
+new file mode 100644
+index 0000000..b547dbd
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/ui.tsx
+@@ -0,0 +1,290 @@
++"use client";
++
++import { ReactNode } from 'react';
++import type { ResponderTimelineStep } from './types';
++
++// ── Shared layout class for all SOS screen root divs ───────────────
++// The dashboard's <main> (see DashboardLayout.tsx) is already the app's
++// single scroll container, so screens just flow in normal document
++// layout here rather than managing their own nested overflow region.
++export const SOS_SCREEN = "flex flex-col min-h-full";
++
++// ── Card ──────────────────────────────────────────────────────────
++export function Card({
++  children, className = '', padding = 24,
++}: {
++  children: ReactNode; className?: string; padding?: number;
++}) {
++  return (
++    <div
++      className={`bg-canvas border border-hairline ${className}`}
++      style={{ borderRadius: 18, padding }}
++    >
++      {children}
++    </div>
++  );
++}
++
++// ── SectionLabel ──────────────────────────────────────────────────
++export function SectionLabel({ children }: { children: ReactNode }) {
++  return (
++    <p className="type-caption text-ink-48" style={{ marginBottom: 8 }}>
++      {children}
++    </p>
++  );
++}
++
++// ── InfoRow ───────────────────────────────────────────────────────
++export function InfoRow({
++  label, value, accent = false,
++}: {
++  label: string; value: string; accent?: boolean;
++}) {
++  return (
++    <div
++      className="flex items-baseline justify-between border-b border-divider last:border-0"
++      style={{ paddingTop: 12, paddingBottom: 12, gap: 12 }}
++    >
++      <span className="type-caption text-ink-48 flex-shrink-0">{label}</span>
++      <span
++        className="type-caption-strong text-right"
++        style={{ color: accent ? '#0066cc' : '#1d1d1f' }}
++      >
++        {value}
++      </span>
++    </div>
++  );
++}
++
++// ── StatusBadge ───────────────────────────────────────────────────
++type BadgeVariant = 'active' | 'pending' | 'acknowledged' | 'resolved' | 'cancelled' | 'safe' | 'sending';
++
++const DOT_COLORS: Record<BadgeVariant, string> = {
++  active: '#DC2626',
++  sending: '#DC2626',
++  pending: '#D97706',
++  acknowledged: '#0066cc',
++  resolved: '#16A34A',
++  cancelled: '#7a7a7a',
++  safe: '#16A34A',
++};
++
++export function StatusBadge({ variant, label }: { variant: BadgeVariant; label: string }) {
++  const isLive = variant === 'active' || variant === 'sending';
++  return (
++    <span
++      className="inline-flex items-center gap-[6px] flex-shrink-0"
++      style={{ fontFamily: 'var(--font-text)', fontSize: 12, fontWeight: 400, letterSpacing: '-0.12px', color: '#1d1d1f' }}
++    >
++      <span
++        className={isLive ? 'live-dot' : ''}
++        style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: DOT_COLORS[variant], flexShrink: 0 }}
++        aria-hidden="true"
++      />
++      {label}
++    </span>
++  );
++}
++
++// ── PrimaryButton ─────────────────────────────────────────────────
++export function PrimaryButton({
++  onClick, children, disabled, destructive, ghost, fullWidth, type = 'button',
++}: {
++  onClick?: () => void; children: ReactNode;
++  disabled?: boolean; destructive?: boolean; ghost?: boolean; fullWidth?: boolean;
++  type?: 'button' | 'submit';
++}) {
++  const bg = ghost ? 'transparent' : destructive ? '#DC2626' : '#0066cc';
++  const fg = ghost ? (destructive ? '#DC2626' : '#0066cc') : '#ffffff';
++  const border = ghost ? `1px solid ${destructive ? '#DC2626' : '#0066cc'}` : 'none';
++
++  return (
++    <button
++      type={type}
++      onClick={onClick}
++      disabled={disabled}
++      className={`${fullWidth ? 'w-full' : ''} transition-transform active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2`}
++      style={{
++        backgroundColor: bg, color: fg, border,
++        borderRadius: 9999,
++        padding: '11px 22px',
++        fontFamily: 'var(--font-text)',
++        fontSize: 17, fontWeight: 400,
++        lineHeight: 1.47, letterSpacing: '-0.374px',
++        opacity: disabled ? 0.4 : 1,
++        cursor: disabled ? 'not-allowed' : 'pointer',
++        minHeight: 44, outlineColor: '#0071e3',
++      }}
++    >
++      {children}
++    </button>
++  );
++}
++
++// ── ConfirmationModal ─────────────────────────────────────────────
++export function ConfirmationModal({
++  title, body, confirmLabel, cancelLabel, confirmDestructive = false, onConfirm, onCancel,
++}: {
++  title: string; body: string; confirmLabel: string; cancelLabel: string;
++  confirmDestructive?: boolean; onConfirm: () => void; onCancel: () => void;
++}) {
++  return (
++    <div
++      className="fixed inset-0 z-50 flex items-end min-[640px]:items-center justify-center fade-in"
++      style={{ background: 'rgba(0,0,0,0.3)' }}
++    >
++      <div
++        className="w-full bg-canvas border border-hairline slide-up"
++        style={{ maxWidth: 480, borderRadius: 18, padding: 24 }}
++        role="dialog" aria-modal="true" aria-labelledby="sos-modal-title"
++      >
++        <h2 id="sos-modal-title" className="type-body-strong text-ink" style={{ marginBottom: 8 }}>
++          {title}
++        </h2>
++        <p className="type-body text-ink-48" style={{ marginBottom: 24 }}>{body}</p>
++        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
++          {/* Safe action is visually primary */}
++          <PrimaryButton fullWidth onClick={onCancel}>{cancelLabel}</PrimaryButton>
++          <PrimaryButton fullWidth ghost destructive={confirmDestructive} onClick={onConfirm}>
++            {confirmLabel}
++          </PrimaryButton>
++        </div>
++      </div>
++    </div>
++  );
++}
++
++// ── MapPlaceholder ────────────────────────────────────────────────
++// Structural placeholder only — no real map/location backend is wired up
++// yet. Kept visually identical to the completed design; the "Map pending"
++// label is intentional, not an oversight (see Remaining backend work).
++export function MapPlaceholder({ active }: { active?: boolean }) {
++  return (
++    <div
++      className="relative w-full overflow-hidden"
++      style={{ height: 180, borderRadius: 11, background: active ? '#EEF4FF' : '#f5f5f7' }}
++      aria-label="Map placeholder — live map integration pending"
++      role="img"
++    >
++      <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.15 }}>
++        <defs>
++          <pattern id="sos-map-grid" width="20" height="20" patternUnits="userSpaceOnUse">
++            <path d="M20 0L0 0 0 20" fill="none" stroke={active ? '#0066cc' : '#1d1d1f'} strokeWidth="0.5" />
++          </pattern>
++        </defs>
++        <rect width="100%" height="100%" fill="url(#sos-map-grid)" />
++      </svg>
++      <svg className="absolute inset-0 w-full h-full" style={{ opacity: active ? 0.18 : 0.1 }}>
++        <line x1="0" y1="55" x2="100%" y2="65" stroke={active ? '#0066cc' : '#1d1d1f'} strokeWidth="2.5" />
++        <line x1="0" y1="120" x2="100%" y2="110" stroke={active ? '#0066cc' : '#1d1d1f'} strokeWidth="1.5" />
++        <line x1="38%" y1="0" x2="36%" y2="100%" stroke={active ? '#0066cc' : '#1d1d1f'} strokeWidth="2" />
++        <line x1="72%" y1="0" x2="70%" y2="100%" stroke={active ? '#0066cc' : '#1d1d1f'} strokeWidth="1.5" />
++      </svg>
++      <div className="absolute inset-0 flex items-center justify-center">
++        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
++          <div style={{ width: 36, height: 36, borderRadius: '50%', background: active ? '#DC2626' : '#7a7a7a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
++            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
++              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
++            </svg>
++          </div>
++          <div style={{ width: 10, height: 10, borderRadius: '50%', background: active ? '#DC2626' : '#7a7a7a', opacity: 0.2, marginTop: -5 }} />
++        </div>
++      </div>
++      {active && (
++        <div
++          className="absolute top-3 left-3 live-dot text-canvas"
++          style={{ background: '#DC2626', borderRadius: 4, padding: '2px 8px', fontFamily: 'var(--font-text)', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em' }}
++        >
++          LIVE
++        </div>
++      )}
++      <div className="absolute bottom-3 right-3" style={{ background: 'rgba(255,255,255,0.85)', borderRadius: 4, padding: '2px 8px', fontFamily: 'var(--font-text)', fontSize: 11, letterSpacing: '-0.12px', color: '#7a7a7a' }}>
++        Map pending
++      </div>
++    </div>
++  );
++}
++
++// ── ResponderTimeline ─────────────────────────────────────────────
++export function ResponderTimeline({ steps }: { steps: ResponderTimelineStep[] }) {
++  return (
++    <ol aria-label="Responder status timeline" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
++      {steps.map((step, i) => (
++        <li key={i} style={{ display: 'flex', gap: 12 }}>
++          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
++            <div
++              className={step.active ? 'live-dot' : ''}
++              style={{
++                width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
++                display: 'flex', alignItems: 'center', justifyContent: 'center',
++                background: step.done ? '#0066cc' : step.active ? '#ffffff' : '#f5f5f7',
++                border: step.done ? 'none' : step.active ? '2px solid #0066cc' : '2px solid #e0e0e0',
++              }}
++            >
++              {step.done ? (
++                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
++                  <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
++                </svg>
++              ) : (
++                <div style={{ width: 6, height: 6, borderRadius: '50%', background: step.active ? '#0066cc' : '#e0e0e0' }} />
++              )}
++            </div>
++            {i < steps.length - 1 && (
++              <div style={{ width: 1, flexGrow: 1, minHeight: 20, margin: '3px 0', background: step.done ? '#0066cc' : '#e0e0e0', opacity: step.done ? 0.35 : 1 }} />
++            )}
++          </div>
++          <div style={{ paddingBottom: i < steps.length - 1 ? 20 : 0, paddingTop: 2 }}>
++            <p className="type-caption-strong" style={{ color: step.done ? '#1d1d1f' : step.active ? '#0066cc' : '#7a7a7a' }}>
++              {step.label}
++            </p>
++            {step.sublabel && (
++              <p className="type-caption" style={{ marginTop: 2, color: step.done ? '#7a7a7a' : step.active ? '#2997ff' : '#e0e0e0' }}>
++                {step.sublabel}
++              </p>
++            )}
++          </div>
++        </li>
++      ))}
++    </ol>
++  );
++}
++
++// ── AppHeader ─────────────────────────────────────────────────────
++export function AppHeader({
++  title, subtitle, onBack, emergency = false,
++}: {
++  title: string; subtitle?: string; onBack?: () => void; emergency?: boolean;
++}) {
++  return (
++    <header
++      className="flex-shrink-0 border-b"
++      style={{
++        background: emergency ? '#DC2626' : '#ffffff',
++        borderBottomColor: emergency ? 'rgba(255,255,255,0.15)' : '#e0e0e0',
++        padding: '20px 24px 16px',
++      }}
++    >
++      {onBack && (
++        <button
++          onClick={onBack}
++          className="flex items-center gap-[4px] transition-opacity active:opacity-60"
++          style={{ color: emergency ? 'rgba(255,255,255,0.8)' : '#0066cc', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 12 }}
++          aria-label="Go back"
++        >
++          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
++            <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
++          </svg>
++          <span className="type-caption" style={{ color: 'inherit' }}>Back</span>
++        </button>
++      )}
++      <h1 className="type-display-md" style={{ color: emergency ? '#ffffff' : '#1d1d1f' }}>
++        {title}
++      </h1>
++      {subtitle && (
++        <p className="type-body" style={{ color: emergency ? 'rgba(255,255,255,0.75)' : '#7a7a7a', marginTop: 4 }}>
++          {subtitle}
++        </p>
++      )}
++    </header>
++  );
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/useSosHistory.ts b/sukuna-platform/apps/web/src/components/dashboard/sos/useSosHistory.ts
+new file mode 100644
+index 0000000..bdfde53
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/useSosHistory.ts
+@@ -0,0 +1,19 @@
++import type { SosEvent } from './types';
++
++/**
++ * TODO(backend): replace with a real fetch once an SOS API + Mongoose
++ * model exist, e.g. `GET /api/sos/history` scoped to the current student
++ * and school (see project report — intentionally not built in this pass).
++ *
++ * Returns an empty list today rather than mock events, so the UI's
++ * existing "No SOS events recorded" empty state is what real users see
++ * until a backend is wired up — not fabricated history.
++ */
++export function useSosHistory(): { events: SosEvent[]; isLoading: boolean } {
++  return { events: [], isLoading: false };
++}
++
++export function useSosEvent(eventId: string): { event: SosEvent | null; isLoading: boolean } {
++  const { events } = useSosHistory();
++  return { event: events.find((e) => e.id === eventId) ?? null, isLoading: false };
++}
+diff --git a/sukuna-platform/apps/web/src/components/dashboard/sos/utils.ts b/sukuna-platform/apps/web/src/components/dashboard/sos/utils.ts
+new file mode 100644
+index 0000000..ac927be
+--- /dev/null
++++ b/sukuna-platform/apps/web/src/components/dashboard/sos/utils.ts
+@@ -0,0 +1,24 @@
++export function formatClockTime(date: Date): string {
++  return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
++}
++
++export function isSameDay(a: Date, b: Date): boolean {
++  return a.getFullYear() === b.getFullYear()
++    && a.getMonth() === b.getMonth()
++    && a.getDate() === b.getDate();
++}
++
++export function formatCheckInLabel(date: Date | null): string {
++  if (!date) return 'No recent check-in';
++  const now = new Date();
++  const prefix = isSameDay(date, now) ? 'Today' : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
++  return `${prefix}, ${formatClockTime(date)}`;
++}
++
++export function formatDuration(start: Date, end: Date): string {
++  const totalSeconds = Math.max(0, Math.round((end.getTime() - start.getTime()) / 1000));
++  const minutes = Math.floor(totalSeconds / 60);
++  const seconds = totalSeconds % 60;
++  if (minutes === 0) return `${seconds}s`;
++  return `${minutes}m ${seconds}s`;
++}
