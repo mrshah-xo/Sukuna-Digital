@@ -9,7 +9,15 @@ interface SplashScreenProps {
 
 export function SplashScreen({ onComplete }: SplashScreenProps) {
   useEffect(() => {
-    const timer = setTimeout(onComplete, 2800);
+    // Purely cosmetic hold — nothing is loading here (no auth/session/data
+    // call happens in this component), so this only needs to last as long
+    // as the entrance choreography below takes to finish playing:
+    //   logo:    0.7s
+    //   tagline: 0.5s delay + 0.6s duration = 1.1s
+    //   dots:    0.8s delay + 0.4s duration = 1.2s  <- last element in
+    // 1200ms is the shortest hold that lets every element finish
+    // appearing before we transition away, so nothing gets cut off.
+    const timer = setTimeout(onComplete, 1200);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -18,7 +26,6 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       className="fixed inset-0 flex flex-col items-center justify-center"
       style={{ background: "#F5F5F7" }}
     >
-      {/* Centered logo */}
       <motion.div
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -28,7 +35,6 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         <SukunaLogo size="lg" variant="light" />
       </motion.div>
 
-      {/* Tagline at bottom */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -49,7 +55,6 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         </p>
       </motion.div>
 
-      {/* Loading dots */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
