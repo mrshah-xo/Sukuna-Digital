@@ -122,18 +122,24 @@ class OTPService {
   /**
    * Akash SMS Provider implementation.
    *
-   * Development intentionally avoids logging the OTP value. Production
-   * providers should send the code through their API without persisting or
-   * printing plaintext secrets.
+   * In production this must never print the plaintext OTP — only the
+   * delivery-provider request/status is logged. In non-production
+   * environments (local dev, CI) the OTP is also printed to the server
+   * terminal so developers can complete the login flow without a real
+   * SMS provider configured.
    */
   private async akashSmsProvider({ phone, otp }: OTPPayload): Promise<boolean> {
-    void otp;
     console.log(`[AKASH SMS SERVICE] OTP requested for Phone: ${phone}`);
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[DEV OTP] ${otp}`);
+    }
+
     console.log('Status: SUCCESS');
-    
+
     // TODO: Implement actual Akash SMS API Call
     // const response = await fetch('https://aakashsms.com/admin/public/sms/v3/send', { ... })
-    
+
     return true;
   }
 }
