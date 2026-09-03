@@ -1,5 +1,9 @@
 # Sukuna Digital
 
+<p align="center">
+  <img src="Animating_Sukuna_Digital_logo_202609031916.mp4" width="100%" alt="Sukuna Digital Logo Animation">
+</p>
+
 Clone this repo at your own risk; it is still in development and not yet complete. When finished, it will release a .exe application. Sukuna Digital is a school-management workspace with separate platform and admin-console projects.
 
 - `sukuna-platform`: the main Sukuna Digital Platform and active production candidate.
