@@ -1,6 +1,11 @@
 # Sukuna Digital
 
-Sukuna Digital is a school-management workspace with separate platform and admin-console projects.
+<p align="center">
+  <a href="https://github.com/user-attachments/assets/596fd2c7-7faa-4c19-8ebe-e5192fdcb713">
+  </a>
+</p>
+
+Clone this repo at your own risk; it is still in development and not yet complete. When finished, it will release a .exe application. Sukuna Digital is a school-management workspace with separate platform and admin-console projects.
 
 - `sukuna-platform`: the main Sukuna Digital Platform and active production candidate.
 - `admin-console`: the Sukuna Digital Admin Console / Admin Panel project.
