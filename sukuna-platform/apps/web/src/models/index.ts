@@ -25,3 +25,4 @@ export * from './libraryloan.model';
 export * from './report.model';  
 export * from './researchproject.model';  
 export * from './faq.model'; 
+export * from './media.model';
