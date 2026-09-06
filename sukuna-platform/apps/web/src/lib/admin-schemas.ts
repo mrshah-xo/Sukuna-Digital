@@ -56,3 +56,14 @@ export type CreateStudentInput = z.infer<typeof createStudentSchema>;
 export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;
 export type CreateTeacherInput = z.infer<typeof createTeacherSchema>;
 export type UpdateTeacherInput = z.infer<typeof updateTeacherSchema>;
+
+export const updateBrandingSchema = z.object({
+  schoolDisplayName: z.string().optional(),
+  shortName: z.string().optional(),
+  primaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Must be a valid hex color code').optional(),
+  secondaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Must be a valid hex color code').optional(),
+  logoMediaId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Must be a valid ObjectId').optional().nullable(),
+}).strict();
+
+export type UpdateBrandingInput = z.infer<typeof updateBrandingSchema>;
+
