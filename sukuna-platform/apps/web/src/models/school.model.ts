@@ -10,6 +10,9 @@ export interface ISchool extends Document {
   branding?: {
     appName?: string;
     logo?: string;
+    logoMediaId?: mongoose.Types.ObjectId;
+    schoolDisplayName?: string;
+    shortName?: string;
     coverImage?: string;
     primaryColor?: string;
     secondaryColor?: string;
@@ -66,6 +69,9 @@ const SchoolSchema = new Schema<ISchool>(
     branding: {
       appName: String,
       logo: String,
+      logoMediaId: { type: Schema.Types.ObjectId, ref: 'Media' },
+      schoolDisplayName: String,
+      shortName: String,
       coverImage: String,
       primaryColor: String,
       secondaryColor: String,
