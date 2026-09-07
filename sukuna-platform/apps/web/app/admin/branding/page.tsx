@@ -130,7 +130,7 @@ export default function BrandingPage() {
 
         {/* Logo Section */}
         <div className="border rounded-lg p-6 bg-card space-y-4 shadow-sm">
-          <h2 className="text-xl font-semibold">School Logo</h2>
+          <h2 className="text-xl font-semibold">School Logo.</h2>
           
           <div className="flex flex-col md:flex-row gap-6 items-start">
             <div className="flex-1 w-full">
