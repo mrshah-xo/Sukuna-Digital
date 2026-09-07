@@ -1,86 +1,202 @@
 'use client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { CheckCircle2, GraduationCap, User } from 'lucide-react';
 
+/**
+ * VerificationSuccessScreen
+ * ─────────────────────────────────────────────────────────────────────────
+ * Thin "smart" wrapper rendered by app/verify-success/page.tsx via Suspense.
+ *
+ * Responsibilities:
+ *   1. Read the verified phone number from the URL search param written
+ *      by OTPVerificationScreen after a successful OTP call.
+ *   2. Fetch the real user display profile from /api/auth/otp/verified-profile.
+ *   3. Map the returned fields to the VerifiedProfile prop shape.
+ *   4. Render <VerificationSuccess /> (the converted design) with real data.
+ *   5. Wire onContinue → /dashboard (existing app destination).
+ *   6. Wire onNotYou → /login (return to login flow).
+ *
+ * What this component does NOT do:
+ *   - It does not modify the OTP flow.
+ *   - It does not create or modify a NextAuth session.
+ *   - It does not hardcode profile data.
+ *   - It does not modify middleware, JWT, or RBAC.
+ */
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import VerificationSuccess, { type VerifiedProfile } from '@/components/auth/VerificationSuccess';
+
+// ─── Loading skeleton: matches the card's visual weight ──────────────────────
+function LoadingSkeleton() {
+  return (
+    <div
+      className="min-h-screen flex flex-col items-start sm:items-center justify-start sm:justify-center overflow-y-auto px-4 sm:px-8 py-5 sm:py-10"
+      style={{ backgroundColor: '#f5f5f7' }}
+    >
+      <div
+        className="w-full animate-pulse"
+        style={{
+          maxWidth: 560,
+          margin: '0 auto',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e0e0e0',
+          borderRadius: 18,
+          overflow: 'hidden',
+        }}
+      >
+        {/* Header */}
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0' }}>
+          <div className="h-8 w-28 rounded-lg" style={{ backgroundColor: '#e0e0e0' }} />
+        </div>
+        {/* Body */}
+        <div className="px-8 pt-8 pb-7 flex flex-col items-center gap-5">
+          <div className="rounded-full" style={{ width: 72, height: 72, backgroundColor: '#e0e0e0' }} />
+          <div className="h-7 w-48 rounded-lg" style={{ backgroundColor: '#e0e0e0' }} />
+          <div className="h-4 w-64 rounded" style={{ backgroundColor: '#e0e0e0' }} />
+          <div className="w-full h-32 rounded-xl" style={{ backgroundColor: '#e0e0e0' }} />
+          <div className="w-full h-12 rounded-full" style={{ backgroundColor: '#e0e0e0' }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Error fallback ───────────────────────────────────────────────────────────
+function ErrorFallback({ phone, onReturnToLogin }: { phone: string; onReturnToLogin: () => void }) {
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-6"
+      style={{ backgroundColor: '#f5f5f7' }}
+    >
+      <div
+        className="w-full max-w-sm text-center"
+        style={{
+          backgroundColor: '#ffffff',
+          borderRadius: 18,
+          border: '1px solid #e0e0e0',
+          padding: '32px 24px',
+        }}
+      >
+        <p style={{ fontSize: 28, marginBottom: 12 }}>✓</p>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1d1d1f', marginBottom: 8 }}>
+          Verification Successful
+        </h1>
+        <p style={{ fontSize: 15, color: '#6e6e73', marginBottom: 8, lineHeight: 1.5 }}>
+          Your identity has been verified for{' '}
+          <span style={{ color: '#1d1d1f', fontWeight: 600 }}>+977 {phone}</span>.
+        </p>
+        <p style={{ fontSize: 13, color: '#8e8e93', marginBottom: 24 }}>
+          Profile details could not be loaded. Proceed to the dashboard to continue.
+        </p>
+        <button
+          onClick={() => (window.location.href = '/dashboard')}
+          style={{
+            width: '100%',
+            backgroundColor: '#0066cc',
+            color: '#ffffff',
+            borderRadius: 9999,
+            padding: '14px 0',
+            fontSize: 16,
+            fontWeight: 500,
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: 12,
+          }}
+        >
+          Continue to Dashboard
+        </button>
+        <button
+          onClick={onReturnToLogin}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#d4183d',
+            fontSize: 14,
+            cursor: 'pointer',
+          }}
+        >
+          Not You?
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 export function VerificationSuccessScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const phoneNumber = searchParams.get('phone') || '9876543210';
+
+  // The OTPVerificationScreen encodes the 10-digit local phone in the query.
+  const phoneParam = searchParams.get('phone') || '';
+
+  const [profile, setProfile] = useState<VerifiedProfile | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+
+  useEffect(() => {
+    if (!phoneParam) {
+      // No phone in URL — likely a direct navigation; send back to login.
+      router.replace('/login');
+      return;
+    }
+
+    let cancelled = false;
+
+    async function fetchProfile() {
+      try {
+        const res = await fetch(
+          `/api/auth/otp/verified-profile?phone=${encodeURIComponent(phoneParam)}`,
+          { cache: 'no-store' }
+        );
+        if (!res.ok) {
+          if (!cancelled) setStatus('error');
+          return;
+        }
+        const json = await res.json();
+        if (!cancelled && json.success && json.data) {
+          setProfile(json.data as VerifiedProfile);
+          setStatus('ready');
+        } else {
+          if (!cancelled) setStatus('error');
+        }
+      } catch {
+        if (!cancelled) setStatus('error');
+      }
+    }
+
+    fetchProfile();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [phoneParam, router]);
+
+  // ── Navigation callbacks ────────────────────────────────────────────────
+  // onContinue: navigate to the main authenticated destination.
+  // The existing Sukuna application routes authenticated users to /dashboard.
+  const handleContinue = () => {
+    router.push('/dashboard');
+  };
+
+  // onNotYou: user wants to use a different account.
+  // Return to the login page so they can start the auth flow again.
+  const handleNotYou = () => {
+    router.push('/login');
+  };
+
+  // ── Render states ───────────────────────────────────────────────────────
+  if (status === 'loading') {
+    return <LoadingSkeleton />;
+  }
+
+  if (status === 'error' || !profile) {
+    return <ErrorFallback phone={phoneParam} onReturnToLogin={handleNotYou} />;
+  }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6">
-      <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        className="relative mb-8 flex items-center justify-center">
-        {[1, 2, 3].map((i) => (
-          <motion.div key={i} initial={{ scale: 0.6, opacity: 0.6 }} animate={{ scale: 1.6 + i * 0.3, opacity: 0 }}
-            transition={{ duration: 1.4, delay: i * 0.2, repeat: Infinity, ease: 'easeOut' }}
-            className="absolute rounded-full" style={{ width: 80, height: 80, backgroundColor: 'rgba(0,122,255,0.15)' }} />
-        ))}
-        <div className="relative w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: '#EBF5FF' }}>
-          <CheckCircle2 className="w-10 h-10" style={{ color: '#007AFF' }} strokeWidth={2} />
-        </div>
-      </motion.div>
-
-      <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        style={{ fontSize: 32, fontWeight: 700, color: '#1D1D1F', letterSpacing: '-0.03em', lineHeight: 1.15, textAlign: 'center', marginBottom: 8 }}>
-        Verification Successful
-      </motion.h1>
-      <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.27 }}
-        style={{ fontSize: 15, color: '#6E6E73', textAlign: 'center', lineHeight: 1.47, marginBottom: 36 }}>
-        Your identity has been confirmed.
-      </motion.p>
-
-      <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, type: 'spring', stiffness: 260, damping: 24 }}
-        className="w-full max-w-sm border rounded-3xl overflow-hidden mb-8" style={{ borderColor: '#E5E5EA' }}>
-        <div className="px-6 pt-6 pb-5 flex items-center gap-4" style={{ backgroundColor: '#F5F5F7', borderBottom: '1px solid #E5E5EA' }}>
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#007AFF' }}>
-            <span style={{ fontSize: 20, fontWeight: 700, color: '#ffffff' }}>AS</span>
-          </div>
-          <div>
-            <p style={{ fontSize: 18, fontWeight: 700, color: '#1D1D1F', letterSpacing: '-0.02em' }}>Ayush Shah</p>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="rounded-full px-2.5 py-0.5" style={{ fontSize: 11, fontWeight: 600, backgroundColor: '#EBF5FF', color: '#007AFF' }}>
-                Student
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white divide-y" style={{ borderColor: '#F5F5F7' }}>
-          {[
-            { label: 'Student ID', value: 'STU-10284' },
-            { label: 'School', value: 'Sukuna Secondary School' },
-            { label: 'Phone', value: `+977 ${phoneNumber}` },
-          ].map((row) => (
-            <div key={row.label} className="flex items-center justify-between px-6 py-4">
-              <span style={{ fontSize: 14, color: '#6E6E73' }}>{row.label}</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#1D1D1F' }}>{row.value}</span>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-        className="w-full max-w-sm space-y-3">
-        <button onClick={() => router.push('/dashboard')}
-          className="w-full flex items-center justify-center gap-2"
-          style={{ height: 56, borderRadius: 16, backgroundColor: '#007AFF', color: '#ffffff', fontSize: 17, fontWeight: 600, letterSpacing: '-0.02em' }}
-          onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.97)')}
-          onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}>
-          <GraduationCap className="w-5 h-5" />
-          Continue to Dashboard
-        </button>
-        <button onClick={() => router.push('/dashboard?tab=settings&sub=edit_profile')}
-          className="w-full flex items-center justify-center gap-2"
-          style={{ height: 56, borderRadius: 16, backgroundColor: 'transparent', border: '1.5px solid #007AFF', color: '#007AFF', fontSize: 17, fontWeight: 400, letterSpacing: '-0.02em' }}
-          onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.97)')}
-          onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}>
-          <User className="w-5 h-5" />
-          View Profile
-        </button>
-      </motion.div>
-    </div>
+    <VerificationSuccess
+      profile={profile}
+      onContinue={handleContinue}
+      onNotYou={handleNotYou}
+    />
   );
 }

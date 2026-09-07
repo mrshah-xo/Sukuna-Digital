@@ -12,15 +12,10 @@
  * All backend/auth concerns (who the user is, where "Continue" goes,
  * what "Not You?" does) are lifted out into props so this component has
  * no dependency on Sukuna's authentication implementation.
- *
- * Integration note: The source package used `motion/react` (standalone
- * Motion package). This project already has `framer-motion@^11`, which
- * exports the same API. The single import line was changed from
- * `"motion/react"` to `"framer-motion"` — no other code change needed.
  */
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Check,
   Info,
@@ -549,7 +544,7 @@ export default function VerificationSuccess({
                         color: C.ink,
                       }}
                     >
-                      Account &amp; Support
+                      Account & Support
                     </h2>
                     <button
                       type="button"
