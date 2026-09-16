@@ -1,8 +1,30 @@
 'use client';
-import React, { useState } from 'react';
-import { Search, Filter, MoreHorizontal, Eye, Ban, RefreshCw, Edit2, Trash2, Wifi, WifiOff, ShieldOff, CheckCircle } from 'lucide-react';
 
-const roleColors: Record<string, string> = { Student: '#34c759', Teacher: '#0066cc', Worker: '#ff9500', Admin: '#5856d6' };
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, MoreHorizontal, Eye, Ban, RefreshCw, Edit2, Trash2, CheckCircle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+interface UserRecord {
+  id: string | number;
+  name: string;
+  role: string;
+  phone: string;
+  class: string;
+  lastLogin: string;
+  device: string;
+  status: string;
+  verified: boolean;
+  avatar: string;
+}
+
+const roleColors: Record<string, string> = {
+  Student: '#34c759',
+  Teacher: '#0066cc',
+  Worker: '#ff9500',
+  Staff: '#ff9500',
+  Admin: '#5856d6',
+  Principal: '#5856d6',
+};
 
 const statusColors: Record<string, { bg: string; text: string; dot: string }> = {
   Online: { bg: '#d1fae5', text: '#065f46', dot: '#34c759' },
@@ -10,42 +32,73 @@ const statusColors: Record<string, { bg: string; text: string; dot: string }> = 
   Blocked: { bg: '#fee2e2', text: '#991b1b', dot: '#ff3b30' },
 };
 
-const users = [
-  { id: 1, name: 'Amara Okafor', role: 'Teacher', phone: '+234 801 234 5678', class: 'SSS 3 Science', lastLogin: '2m ago', device: 'iPhone 16 Pro', status: 'Online', verified: true, avatar: 'AO' },
-  { id: 2, name: 'Chidera Nwachukwu', role: 'Student', phone: '+234 802 345 6789', class: 'JSS 2A', lastLogin: '5m ago', device: 'Samsung S24', status: 'Online', verified: true, avatar: 'CN' },
-  { id: 3, name: 'Fatima Abdullahi', role: 'Student', phone: '+234 803 456 7890', class: 'SSS 1 Arts', lastLogin: '1h ago', device: 'Tecno Spark', status: 'Offline', verified: true, avatar: 'FA' },
-  { id: 4, name: 'Emmanuel Adeyemi', role: 'Teacher', phone: '+234 804 567 8901', class: 'JSS 1-3 Maths', lastLogin: '18m ago', device: 'iPhone 15', status: 'Online', verified: true, avatar: 'EA' },
-  { id: 5, name: 'Ngozi Obi', role: 'Teacher', phone: '+234 805 678 9012', class: 'SSS 2 English', lastLogin: '24m ago', device: 'iPad Pro', status: 'Online', verified: false, avatar: 'NO' },
-  { id: 6, name: 'Tunde Bakare', role: 'Student', phone: '+234 806 789 0123', class: 'SSS 3 Commerce', lastLogin: '31m ago', device: 'Xiaomi Mi 12', status: 'Offline', verified: true, avatar: 'TB' },
-  { id: 7, name: 'Aisha Mohammed', role: 'Student', phone: '+234 807 890 1234', class: 'JSS 3B', lastLogin: '45m ago', device: 'Infinix Hot', status: 'Online', verified: true, avatar: 'AM' },
-  { id: 8, name: 'Kelechi Eze', role: 'Worker', phone: '+234 808 901 2345', class: 'Admin Staff', lastLogin: '2h ago', device: 'Laptop', status: 'Offline', verified: true, avatar: 'KE' },
-  { id: 9, name: 'Hauwa Bello', role: 'Student', phone: '+234 809 012 3456', class: 'JSS 1C', lastLogin: '3h ago', device: 'Tecno Camon', status: 'Blocked', verified: false, avatar: 'HB' },
-  { id: 10, name: 'Yusuf Ibrahim', role: 'Teacher', phone: '+234 810 123 4567', class: 'SSS 1-3 Physics', lastLogin: '10m ago', device: 'iPhone 14', status: 'Online', verified: true, avatar: 'YI' },
-  { id: 11, name: 'Chioma Ezeh', role: 'Student', phone: '+234 811 234 5678', class: 'SSS 2 Biology', lastLogin: '4h ago', device: 'Samsung A54', status: 'Offline', verified: true, avatar: 'CE' },
-  { id: 12, name: 'Babatunde Afolabi', role: 'Admin', phone: '+234 812 345 6789', class: 'Super Admin', lastLogin: 'Just now', device: 'MacBook Pro', status: 'Online', verified: true, avatar: 'BA' },
-];
-
 const avatarBg: Record<string, string> = {
   AO: '#0066cc', CN: '#34c759', FA: '#ff9500', EA: '#5856d6', NO: '#30d158',
   TB: '#ff3b30', AM: '#007aff', KE: '#8e8e93', HB: '#ff3b30', YI: '#0066cc',
-  CE: '#34c759', BA: '#1d1d1f',
+  CE: '#34c759', BA: '#1d1d1f', SA: '#1d1d1f',
 };
 
+const defaultUsers: UserRecord[] = [
+  { id: 1, name: 'Amara Okafor', role: 'Teacher', phone: '+977 9841-234567', class: 'Grade 10 Science', lastLogin: '2m ago', device: 'Web Portal', status: 'Online', verified: true, avatar: 'AO' },
+  { id: 2, name: 'Chidera Nwachukwu', role: 'Student', phone: '+977 9841-345678', class: 'Grade 9A', lastLogin: '5m ago', device: 'Android Mobile', status: 'Online', verified: true, avatar: 'CN' },
+  { id: 3, name: 'Fatima Abdullahi', role: 'Student', phone: '+977 9841-456789', class: 'Grade 11 Arts', lastLogin: '1h ago', device: 'iOS App', status: 'Offline', verified: true, avatar: 'FA' },
+  { id: 4, name: 'Emmanuel Adeyemi', role: 'Teacher', phone: '+977 9841-567890', class: 'Grade 8-10 Maths', lastLogin: '18m ago', device: 'Web Portal', status: 'Online', verified: true, avatar: 'EA' },
+  { id: 5, name: 'Ngozi Obi', role: 'Teacher', phone: '+977 9841-678901', class: 'Grade 10 English', lastLogin: '24m ago', device: 'iPad Tablet', status: 'Online', verified: false, avatar: 'NO' },
+];
+
 export function UserMonitoring() {
+  const [users, setUsers] = useState<UserRecord[]>(defaultUsers);
+  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [openMenu, setOpenMenu] = useState<number | null>(null);
+  const [openMenu, setOpenMenu] = useState<string | number | null>(null);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (roleFilter !== 'All') params.set('role', roleFilter);
+        if (statusFilter !== 'All') params.set('status', statusFilter);
+
+        const res = await fetch(`/api/admin/users?${params.toString()}`);
+        const json = await res.json();
+        if (res.ok && json.success && json.data?.users && json.data.users.length > 0) {
+          setUsers(json.data.users);
+        }
+      } catch (err) {
+        console.error('Failed to load users:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchUsers();
+  }, [search, roleFilter, statusFilter]);
 
   const filtered = users.filter(u => {
     const q = search.toLowerCase();
     const matchSearch = u.name.toLowerCase().includes(q) || u.phone.includes(q) || u.class.toLowerCase().includes(q);
-    const matchRole = roleFilter === 'All' || u.role === roleFilter;
-    const matchStatus = statusFilter === 'All' || u.status === statusFilter;
+    const matchRole = roleFilter === 'All' || u.role.toLowerCase() === roleFilter.toLowerCase();
+    const matchStatus = statusFilter === 'All' || u.status.toLowerCase() === statusFilter.toLowerCase();
     return matchSearch && matchRole && matchStatus;
   });
 
-  const onlineCount = users.filter(u => u.status === 'Online').length;
+  const onlineCount = filtered.filter(u => u.status === 'Online').length;
+
+  const handleExportCSV = () => {
+    const headers = ['Name,Role,Phone,Class,Last Login,Status,Verified'];
+    const rows = filtered.map(u => `"${u.name}","${u.role}","${u.phone}","${u.class}","${u.lastLogin}","${u.status}","${u.verified ? 'Yes' : 'No'}"`);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'sukuna_users.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('User list exported as CSV');
+  };
 
   return (
     <div style={{ padding: '28px 32px' }}>
@@ -55,10 +108,11 @@ export function UserMonitoring() {
             Live User Monitoring
           </h2>
           <p style={{ fontSize: '14px', color: '#7a7a7a', marginTop: '3px' }}>
-            {users.length} total users · <span style={{ color: '#34c759', fontWeight: 500 }}>●</span> {onlineCount} online now
+            {filtered.length} total users · <span style={{ color: '#34c759', fontWeight: 500 }}>●</span> {onlineCount} online now
           </p>
         </div>
         <button
+          onClick={handleExportCSV}
           style={{
             height: '34px', padding: '0 18px', borderRadius: '9999px',
             background: '#0066cc', color: '#fff', border: 'none',
@@ -145,8 +199,18 @@ export function UserMonitoring() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((user, i) => {
-              const sc = statusColors[user.status];
+            {isLoading ? (
+              <tr>
+                <td colSpan={9} style={{ padding: '36px', textAlign: 'center', color: '#7a7a7a' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <Loader2 size={16} className="animate-spin" /> Loading users...
+                  </div>
+                </td>
+              </tr>
+            ) : filtered.map((user, i) => {
+              const sc = statusColors[user.status] || statusColors.Offline;
+              const rc = roleColors[user.role] || '#5856d6';
+              const avBg = avatarBg[user.avatar] || '#0066cc';
               return (
                 <tr
                   key={user.id}
@@ -159,9 +223,9 @@ export function UserMonitoring() {
                       <div
                         style={{
                           width: '32px', height: '32px', borderRadius: '50%',
-                          background: `${avatarBg[user.avatar]}22`,
+                          background: `${avBg}22`,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '10px', fontWeight: 700, color: avatarBg[user.avatar],
+                          fontSize: '10px', fontWeight: 700, color: avBg,
                           flexShrink: 0,
                         }}
                       >
@@ -174,7 +238,7 @@ export function UserMonitoring() {
                     <span
                       style={{
                         fontSize: '11px', fontWeight: 500, padding: '3px 8px', borderRadius: '9999px',
-                        background: `${roleColors[user.role]}18`, color: roleColors[user.role],
+                        background: `${rc}18`, color: rc,
                       }}
                     >
                       {user.role}
@@ -223,7 +287,10 @@ export function UserMonitoring() {
                           ].map(a => (
                             <button
                               key={a.label}
-                              onClick={() => setOpenMenu(null)}
+                              onClick={() => {
+                                setOpenMenu(null);
+                                toast.info(`Action: ${a.label} for ${user.name}`);
+                              }}
                               style={{
                                 width: '100%', textAlign: 'left', padding: '8px 10px',
                                 borderRadius: '7px', display: 'flex', alignItems: 'center',
@@ -246,7 +313,7 @@ export function UserMonitoring() {
             })}
           </tbody>
         </table>
-        {filtered.length === 0 && (
+        {!isLoading && filtered.length === 0 && (
           <div style={{ padding: '40px', textAlign: 'center', color: '#7a7a7a', fontSize: '14px' }}>
             No users match your filters.
           </div>
