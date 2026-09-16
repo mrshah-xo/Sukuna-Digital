@@ -10,7 +10,9 @@ export const dynamic = 'force-dynamic';
 export const GET = apiHandler(async (req, { user }) => {
   await connectDB();
 
-  const school = await School.findById(user.schoolId).select('branding').lean();
+  const school = await School.findById(user.schoolId)
+    .select('schoolName branding versionHistory')
+    .lean();
   
   if (!school) {
     return NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'School not found' } }, { status: 404 });
@@ -28,10 +30,12 @@ export const GET = apiHandler(async (req, { user }) => {
   return NextResponse.json({
     success: true,
     data: {
+      schoolName: school.schoolName,
       branding: {
         ...school.branding,
-        logo: logoUrl // Resolved URL for the client
-      }
+        logo: logoUrl,
+      },
+      versionHistory: school.versionHistory || [],
     }
   });
 }, { roles: ['ADMIN', 'PRINCIPAL'], requireSchoolId: true });
@@ -39,28 +43,64 @@ export const GET = apiHandler(async (req, { user }) => {
 export const PATCH = apiHandler<UpdateBrandingInput>(async (req, { user, validatedData }) => {
   await connectDB();
 
-  // Protect against IDOR on logoMediaId
-  if (validatedData.logoMediaId) {
-    const media = await Media.findById(validatedData.logoMediaId);
+  // Helper to validate and secure media references against IDOR
+  const validateMedia = async (mediaIdStr: string, allowedCategories: string[]) => {
+    const media = await Media.findById(mediaIdStr);
     if (!media) {
-      return NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Selected media not found' } }, { status: 404 });
+      throw new Error('Selected media not found');
     }
     if (media.schoolId.toString() !== user.schoolId) {
-      return NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message: 'Cannot assign media from another school' } }, { status: 403 });
+      throw new Error('Cannot assign media from another school');
     }
-    if (media.category !== 'BRANDING') {
-      return NextResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'Selected media must be in the BRANDING category' } }, { status: 400 });
+    if (!allowedCategories.includes(media.category)) {
+      throw new Error(`Selected media must be in category: ${allowedCategories.join(', ')}`);
     }
+    return media;
+  };
+
+  try {
+    if (validatedData.logoMediaId) {
+      await validateMedia(validatedData.logoMediaId, ['BRANDING']);
+    }
+    if (validatedData.heroBannerMediaId) {
+      await validateMedia(validatedData.heroBannerMediaId, ['BRANDING', 'LOGIN_SLIDER']);
+    }
+    if (validatedData.frame2MediaId) {
+      await validateMedia(validatedData.frame2MediaId, ['BRANDING', 'LOGIN_SLIDER']);
+    }
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: err.message } }, { status: 400 });
   }
 
-  // Prepare update object for nested branding
+  // Prepare update object
   const updateData: Record<string, any> = {};
   
+  if (validatedData.schoolName !== undefined) {
+    updateData['schoolName'] = validatedData.schoolName;
+  }
   if (validatedData.schoolDisplayName !== undefined) {
     updateData['branding.schoolDisplayName'] = validatedData.schoolDisplayName;
   }
   if (validatedData.shortName !== undefined) {
     updateData['branding.shortName'] = validatedData.shortName;
+  }
+  if (validatedData.appName !== undefined) {
+    updateData['branding.appName'] = validatedData.appName;
+  }
+  if (validatedData.welcomeMessage !== undefined) {
+    updateData['branding.welcomeMessage'] = validatedData.welcomeMessage;
+  }
+  if (validatedData.frame2Title !== undefined) {
+    updateData['branding.frame2Title'] = validatedData.frame2Title;
+  }
+  if (validatedData.frame2Description !== undefined) {
+    updateData['branding.frame2Description'] = validatedData.frame2Description;
+  }
+  if (validatedData.homePageHeroBanner !== undefined) {
+    updateData['branding.homePageHeroBanner'] = validatedData.homePageHeroBanner;
+  }
+  if (validatedData.frame2Image !== undefined) {
+    updateData['branding.frame2Image'] = validatedData.frame2Image;
   }
   if (validatedData.primaryColor !== undefined) {
     updateData['branding.primaryColor'] = validatedData.primaryColor;
@@ -80,11 +120,22 @@ export const PATCH = apiHandler<UpdateBrandingInput>(async (req, { user, validat
     return NextResponse.json({ success: true, message: 'No changes made' });
   }
 
+  // Create version history entry
   const updatedSchool = await School.findByIdAndUpdate(
     user.schoolId,
-    { $set: updateData },
+    {
+      $set: updateData,
+      $push: {
+        versionHistory: {
+          version: `v${Date.now().toString().slice(-4)}`,
+          date: new Date(),
+          description: `Updated branding: ${Object.keys(validatedData).join(', ')}`,
+          updatedBy: user.id,
+        }
+      }
+    },
     { new: true, runValidators: true }
-  ).select('branding');
+  ).select('schoolName branding versionHistory');
 
   if (!updatedSchool) {
     return NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'School not found' } }, { status: 404 });
@@ -109,13 +160,17 @@ export const PATCH = apiHandler<UpdateBrandingInput>(async (req, { user, validat
     metadata: { fieldsUpdated: Object.keys(validatedData) }
   });
 
+  const schoolObj = updatedSchool.toObject();
+
   return NextResponse.json({
     success: true,
     data: {
+      schoolName: schoolObj.schoolName,
       branding: {
-        ...updatedSchool.branding?.toObject(),
-        logo: logoUrl
-      }
+        ...schoolObj.branding,
+        logo: logoUrl,
+      },
+      versionHistory: schoolObj.versionHistory || [],
     }
   });
 }, { roles: ['ADMIN', 'PRINCIPAL'], requireSchoolId: true, schema: updateBrandingSchema });
