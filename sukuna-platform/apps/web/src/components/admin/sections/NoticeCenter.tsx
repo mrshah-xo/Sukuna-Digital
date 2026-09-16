@@ -1,28 +1,93 @@
 'use client';
-import React, { useState } from 'react';
-import { Plus, Bell, Clock, Users, BookOpen, Briefcase, ChevronDown, Send, Eye, Trash2, Pin } from 'lucide-react';
 
-const notices = [
+import React, { useState, useEffect } from 'react';
+import { Plus, Bell, Eye, Trash2, Pin, Send, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+interface NoticeItem {
+  id: string | number;
+  title: string;
+  body: string;
+  target: string;
+  author: string;
+  date: string;
+  reads: number;
+  pinned: boolean;
+  status: string;
+}
+
+const defaultNotices: NoticeItem[] = [
   { id: 1, title: 'End of Term Examination Timetable', body: 'The 2nd term examinations will commence on June 10th. All students must be in school by 7:30 AM. Calculators are allowed for Maths only.', target: 'All Users', author: 'Principal', date: 'May 28, 2026', reads: 2841, pinned: true, status: 'Published' },
   { id: 2, title: 'Staff Meeting — Compulsory Attendance', body: 'All teaching staff are required to attend the end-of-term staff meeting on June 5th at 2:00 PM in the Main Hall.', target: 'Teachers', author: 'Admin', date: 'May 27, 2026', reads: 138, pinned: false, status: 'Published' },
   { id: 3, title: 'School Fees Deadline Reminder', body: 'Parents are reminded that the deadline for payment of second-term school fees is June 1st. Late payments will attract a penalty.', target: 'Students', author: 'Bursar', date: 'May 26, 2026', reads: 1923, pinned: false, status: 'Published' },
-  { id: 4, title: 'Annual Science Exhibition — Volunteers Needed', body: 'SSS 2 and SSS 3 students interested in showcasing projects at the Annual Science Exhibition should submit their names to their form teachers.', target: 'SSS 2, SSS 3', author: 'HOD Sciences', date: 'May 25, 2026', reads: 892, pinned: false, status: 'Published' },
-  { id: 5, title: 'Welcome Back — Third Term Begins July 14', body: "We are pleased to announce that the third term of the 2025/2026 academic year will begin on Monday, July 14th. We wish all students a restful holiday.", target: 'All Users', author: 'Admin', date: 'May 22, 2026', reads: 0, pinned: false, status: 'Scheduled' },
+  { id: 4, title: 'Annual Science Exhibition — Volunteers Needed', body: 'Grade 11 and Grade 12 students interested in showcasing projects at the Annual Science Exhibition should submit their names to their form teachers.', target: 'Grade 11, Grade 12', author: 'HOD Sciences', date: 'May 25, 2026', reads: 892, pinned: false, status: 'Published' },
 ];
 
-const targetOptions = ['All Users', 'Students', 'Teachers', 'Workers', 'JSS 1', 'JSS 2', 'JSS 3', 'SSS 1', 'SSS 2', 'SSS 3'];
+const targetOptions = ['All Users', 'Students', 'Teachers', 'Staff', 'Grade 10', 'Grade 11', 'Grade 12'];
 
 export function NoticeCenter() {
+  const [notices, setNotices] = useState<NoticeItem[]>(defaultNotices);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [target, setTarget] = useState('All Users');
   const [scheduleMode, setScheduleMode] = useState(false);
 
+  useEffect(() => {
+    async function loadNotices() {
+      try {
+        const res = await fetch('/api/admin/notices');
+        const json = await res.json();
+        if (res.ok && json.success && json.data?.notices && json.data.notices.length > 0) {
+          setNotices(json.data.notices);
+        }
+      } catch (err) {
+        console.error('Failed to load notices:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadNotices();
+  }, []);
+
+  const handleCreateNotice = async () => {
+    if (!title.trim() || !body.trim()) {
+      toast.error('Please enter both title and content for the notice');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/notices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, body, target }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error?.message || 'Failed to create notice');
+      }
+
+      setNotices(prev => [json.data, ...prev]);
+      setTitle('');
+      setBody('');
+      setShowForm(false);
+      toast.success('Notice published successfully');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to publish notice');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const targetColors: Record<string, string> = {
     'All Users': '#0066cc',
     Teachers: '#5856d6',
     Students: '#34c759',
+    Staff: '#ff9500',
     Workers: '#ff9500',
   };
   const tc = (t: string) => targetColors[t] || '#7a7a7a';
@@ -100,6 +165,7 @@ export function NoticeCenter() {
                   {['Publish Now', 'Schedule'].map(d => (
                     <button
                       key={d}
+                      type="button"
                       onClick={() => setScheduleMode(d === 'Schedule')}
                       style={{
                         flex: 1, height: '40px', borderRadius: '10px',
@@ -117,19 +183,24 @@ export function NoticeCenter() {
             </div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '4px' }}>
               <button
+                type="button"
                 onClick={() => setShowForm(false)}
                 style={{ padding: '9px 20px', borderRadius: '9999px', background: '#f5f5f7', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#3a3a3c', fontWeight: 500 }}
               >
                 Cancel
               </button>
               <button
+                type="button"
+                onClick={handleCreateNotice}
+                disabled={isSubmitting}
                 style={{
                   padding: '9px 20px', borderRadius: '9999px', background: '#0066cc',
-                  border: 'none', cursor: 'pointer', fontSize: '13px', color: '#fff',
+                  border: 'none', cursor: isSubmitting ? 'not-allowed' : 'pointer', fontSize: '13px', color: '#fff',
                   fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px',
+                  opacity: isSubmitting ? 0.8 : 1,
                 }}
               >
-                <Send size={12} strokeWidth={2} />
+                {isSubmitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={12} strokeWidth={2} />}
                 {scheduleMode ? 'Schedule Notice' : 'Publish Now'}
               </button>
             </div>
@@ -138,7 +209,13 @@ export function NoticeCenter() {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {notices.map(notice => (
+        {isLoading ? (
+          <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '16px', padding: '36px', textAlign: 'center', color: '#7a7a7a' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <Loader2 size={16} className="animate-spin" /> Loading school notices...
+            </div>
+          </div>
+        ) : notices.map(notice => (
           <div
             key={notice.id}
             style={{
@@ -186,9 +263,12 @@ export function NoticeCenter() {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                <button style={{ padding: '6px 12px', borderRadius: '8px', background: '#f5f5f7', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#3a3a3c', fontWeight: 500 }}>Edit</button>
-                <button style={{ padding: '6px 8px', borderRadius: '8px', background: '#fff0f0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                  <Trash2 size={13} color="#ff3b30" />
+                <button
+                  type="button"
+                  onClick={() => toast.info(`Viewing notice #${notice.id}`)}
+                  style={{ padding: '6px 12px', borderRadius: '8px', background: '#f5f5f7', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#3a3a3c', fontWeight: 500 }}
+                >
+                  View
                 </button>
               </div>
             </div>
