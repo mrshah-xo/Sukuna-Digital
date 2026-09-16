@@ -58,11 +58,20 @@ export type CreateTeacherInput = z.infer<typeof createTeacherSchema>;
 export type UpdateTeacherInput = z.infer<typeof updateTeacherSchema>;
 
 export const updateBrandingSchema = z.object({
+  schoolName: z.string().optional(),
   schoolDisplayName: z.string().optional(),
   shortName: z.string().optional(),
+  appName: z.string().optional(),
+  welcomeMessage: z.string().optional(),
+  frame2Title: z.string().optional(),
+  frame2Description: z.string().optional(),
+  homePageHeroBanner: z.string().optional(),
+  frame2Image: z.string().optional(),
   primaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Must be a valid hex color code').optional(),
   secondaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Must be a valid hex color code').optional(),
   logoMediaId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Must be a valid ObjectId').optional().nullable(),
+  heroBannerMediaId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Must be a valid ObjectId').optional().nullable(),
+  frame2MediaId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Must be a valid ObjectId').optional().nullable(),
 }).strict();
 
 export type UpdateBrandingInput = z.infer<typeof updateBrandingSchema>;
