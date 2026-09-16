@@ -32,8 +32,36 @@ const severityDot: Record<string, string> = {
 export function SecurityLogs() {
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [logItems, setLogItems] = useState(logs);
+  const [stats, setStats] = useState({
+    totalToday: '847',
+    securityAlerts: '3',
+    failedLogins: '17',
+    adminActions: '12',
+  });
 
-  const filtered = logs.filter(l => {
+  React.useEffect(() => {
+    fetch('/api/admin/security')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          if (data.data.logs && data.data.logs.length > 0) {
+            setLogItems(data.data.logs);
+          }
+          if (data.data.stats) {
+            setStats({
+              totalToday: String(data.data.stats.totalToday ?? 0),
+              securityAlerts: String(data.data.stats.securityAlerts ?? 0),
+              failedLogins: String(data.data.stats.failedLogins ?? 0),
+              adminActions: String(data.data.stats.adminActions ?? 0),
+            });
+          }
+        }
+      })
+      .catch(err => console.error('Failed to load security logs:', err));
+  }, []);
+
+  const filtered = logItems.filter(l => {
     const matchFilter = filter === 'All' || (filter === 'Alerts' && l.severity === 'high') || (filter === 'Warnings' && l.severity === 'warning') || (filter === 'Info' && l.severity === 'info');
     const matchSearch = l.event.toLowerCase().includes(search.toLowerCase()) || l.user.toLowerCase().includes(search.toLowerCase()) || l.detail.toLowerCase().includes(search.toLowerCase());
     return matchFilter && matchSearch;
@@ -51,10 +79,10 @@ export function SecurityLogs() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '20px' }}>
         {[
-          { label: 'Total Events Today', value: '847', color: '#0066cc' },
-          { label: 'Security Alerts', value: '3', color: '#ff3b30' },
-          { label: 'Failed Logins', value: '17', color: '#ff9500' },
-          { label: 'Admin Actions', value: '12', color: '#5856d6' },
+          { label: 'Total Events Today', value: stats.totalToday, color: '#0066cc' },
+          { label: 'Security Alerts', value: stats.securityAlerts, color: '#ff3b30' },
+          { label: 'Failed Logins', value: stats.failedLogins, color: '#ff9500' },
+          { label: 'Admin Actions', value: stats.adminActions, color: '#5856d6' },
         ].map(s => (
           <div key={s.label} style={{ background: '#ffffff', border: '1px solid #e0e0e0', borderRadius: '16px', padding: '18px 20px' }}>
             <div style={{ fontSize: '26px', fontWeight: 700, color: s.color, letterSpacing: '-0.8px', marginBottom: '3px' }}>{s.value}</div>
