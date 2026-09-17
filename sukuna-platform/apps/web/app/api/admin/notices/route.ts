@@ -88,3 +88,37 @@ export const POST = apiHandler(async (req, { user }) => {
     },
   }, { status: 201 });
 }, { roles: ['ADMIN', 'PRINCIPAL'], requireSchoolId: true });
+
+export const DELETE = apiHandler(async (req, { user }) => {
+  await connectDB();
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return NextResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'Notice ID is required' } }, { status: 400 });
+  }
+
+  const notice = await Notice.findOneAndDelete({
+    _id: new mongoose.Types.ObjectId(id),
+    schoolId: new mongoose.Types.ObjectId(user.schoolId),
+  });
+
+  if (!notice) {
+    return NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Notice not found or already deleted' } }, { status: 404 });
+  }
+
+  await AuditLog.create({
+    schoolId: user.schoolId,
+    userId: user.id,
+    action: 'DELETE_NOTICE',
+    resource: 'Notice',
+    targetId: notice._id,
+    metadata: { title: notice.title },
+  });
+
+  return NextResponse.json({
+    success: true,
+    message: 'Notice deleted successfully',
+  });
+}, { roles: ['ADMIN', 'PRINCIPAL'], requireSchoolId: true });
+
