@@ -59,3 +59,62 @@ export const GET = apiHandler(async (req, { user }) => {
     }
   });
 }, { roles: ['ADMIN', 'PRINCIPAL'], requireSchoolId: true });
+
+export const PATCH = apiHandler(async (req, { user }) => {
+  await connectDB();
+  const body = await req.json();
+  const { userId, action } = body;
+
+  if (!userId || !action) {
+    return NextResponse.json(
+      { success: false, error: { code: 'BAD_REQUEST', message: 'userId and action are required' } },
+      { status: 400 }
+    );
+  }
+
+  const targetUser = await User.findOne({
+    _id: new mongoose.Types.ObjectId(userId),
+    schoolId: new mongoose.Types.ObjectId(user.schoolId),
+  });
+
+  if (!targetUser) {
+    return NextResponse.json(
+      { success: false, error: { code: 'NOT_FOUND', message: 'User not found in this school' } },
+      { status: 404 }
+    );
+  }
+
+  if (action === 'SUSPEND') {
+    targetUser.status = 'SUSPENDED';
+  } else if (action === 'ACTIVATE') {
+    targetUser.status = 'ACTIVE';
+  } else if (action === 'DEACTIVATE') {
+    targetUser.status = 'INACTIVE';
+  } else {
+    return NextResponse.json(
+      { success: false, error: { code: 'BAD_REQUEST', message: 'Invalid action' } },
+      { status: 400 }
+    );
+  }
+
+  await targetUser.save();
+
+  await AuditLog.create({
+    schoolId: user.schoolId,
+    userId: user.id,
+    action: `${action}_USER`,
+    resource: 'User',
+    targetId: targetUser._id,
+    metadata: { targetUserPhone: targetUser.phone, targetUserName: targetUser.name }
+  });
+
+  return NextResponse.json({
+    success: true,
+    message: `User status updated to ${targetUser.status}`,
+    data: {
+      id: targetUser._id.toString(),
+      status: targetUser.status === 'ACTIVE' ? 'Online' : targetUser.status === 'SUSPENDED' ? 'Blocked' : 'Offline',
+    }
+  });
+}, { roles: ['ADMIN', 'PRINCIPAL'], requireSchoolId: true });
+
