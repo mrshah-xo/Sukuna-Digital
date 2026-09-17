@@ -1,4 +1,4 @@
-# Sukuna Digital do not clone this it is not for you if you want first follow me!
+# Sukuna Digital do not clone this it is not for you if you want first follow me! or give star
 
 <p align="center">
   <a href="https://github.com/user-attachments/assets/596fd2c7-7faa-4c19-8ebe-e5192fdcb713">
