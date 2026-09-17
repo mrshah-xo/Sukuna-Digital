@@ -3,6 +3,8 @@ import { z } from 'zod';
 import connectDB from '@/lib/mongodb';
 import { User, Student, Teacher } from '@/models';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/auth/otp/verified-profile?phone=9841XXXXXX
  *
